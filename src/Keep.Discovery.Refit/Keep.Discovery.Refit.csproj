@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Zhen,Kede</Authors>
+    <Version>1.0.0-preview2</Version>
+    <Company>Kede</Company>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Refit.HttpClientFactory" Version="4.8.14" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Keep.Discovery\Keep.Discovery.csproj" />
+  </ItemGroup>
+
+</Project>

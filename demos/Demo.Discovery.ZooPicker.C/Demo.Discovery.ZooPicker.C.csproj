@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
+    <PackageReference Include="Serilog.Extensions.Logging.File" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Keep.Discovery.Refit\Keep.Discovery.Refit.csproj" />
+    <ProjectReference Include="..\..\src\Keep.Discovery.ZooPicker\Keep.Discovery.ZooPicker.csproj" />
+  </ItemGroup>
+
+
+</Project>

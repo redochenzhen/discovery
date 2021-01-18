@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\ref\keep\src\Keep.Common\Keep.Common.csproj" />
+    <ProjectReference Include="..\Keep.Discovery\Keep.Discovery.csproj" />
+  </ItemGroup>
+
+</Project>
