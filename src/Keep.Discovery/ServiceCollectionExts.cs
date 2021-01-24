@@ -2,6 +2,7 @@
 using Keep.Discovery.Http;
 using Keep.Discovery.Internal;
 using Keep.Discovery.LoadBalancer;
+using Keep.Discovery.Pump;
 using Keep.Discovery.StaticDiscovery;
 using Keep.Discovery.Worker;
 using Microsoft.AspNetCore.Hosting;
@@ -47,7 +48,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.Configure(configure);
             services.AddTransient<DiscoveryHttpMessageHandler>();
             services.AddSingleton<InstanceCache>();
-            services.AddSingleton<IBalancer, RandomBalancer>();
+            services.AddSingleton<IDispatcher, Dispatcher>();
+            services.AddSingleton<IBalancerFactory, BalancerFactory>();
 
             services.TryAddEnumerable(
             new[]

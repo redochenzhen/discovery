@@ -1,70 +1,104 @@
 ﻿using Keep.Discovery.Contract;
+using Keep.Discovery.LoadBalancer;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace Keep.Discovery
 {
     public class InstanceCache
     {
         private readonly ILogger _logger;
-        // ServiceName -> InstanceMap
-        // InstanceMap :: ServiceId -> Instance
-        private readonly Dictionary<string, ConcurrentDictionary<Guid, IServiceInstance>> _map;
+        private readonly ConcurrentDictionary<string, InstanceCacheRecord> _cache;
 
         public InstanceCache(ILogger<InstanceCache> loger)
         {
             _logger = loger;
-            _map = new Dictionary<string, ConcurrentDictionary<Guid, IServiceInstance>>();
+            _cache = new ConcurrentDictionary<string, InstanceCacheRecord>();
         }
 
         //TODO: race condition ???
 
-        public Dictionary<string, ConcurrentDictionary<Guid, IServiceInstance>> GetAll()
+        public Dictionary<string, InstanceCacheRecord> GetAll()
         {
-            return _map;
+            return _cache.ToDictionary(kv => kv.Key, kv => kv.Value);
+        }
+
+        public InstanceCacheRecord GetCacheRecord(string serviceName)
+        {
+            if (!_cache.TryGetValue(serviceName, out var cacheRecord))
+            {
+                // 如果不存在，则创建一个空记录
+                cacheRecord = new InstanceCacheRecord();
+                _cache.TryAdd(serviceName, cacheRecord);
+            }
+            return cacheRecord;
         }
 
         public void Add(string serviceName, Guid serviceId, IServiceInstance instance)
         {
-            if (!_map.TryGetValue(serviceName, out var instanceMap))
+            if (!_cache.TryGetValue(serviceName, out var cacheRecord))
             {
-                instanceMap = new ConcurrentDictionary<Guid, IServiceInstance>();
-                _map.Add(serviceName, instanceMap);
+                cacheRecord = new InstanceCacheRecord();
+                _cache.TryAdd(serviceName, cacheRecord);
             }
-            instanceMap.AddOrUpdate(serviceId, instance, (id, old) => instance);
+            cacheRecord.InstanceMap.AddOrUpdate(serviceId, instance, (id, old) => instance);
+            cacheRecord.VersionUp();
         }
 
         public void Remove(string serviceName, Guid serviceId)
         {
-            if (!_map.TryGetValue(serviceName, out var instanceMap))
+            if (!_cache.TryGetValue(serviceName, out var cacheRecord))
             {
                 return;
             }
-            instanceMap.TryRemove(serviceId, out var _);
+            if (cacheRecord.InstanceMap.TryRemove(serviceId, out var _))
+            {
+                cacheRecord.VersionUp();
+            }
         }
 
         public IList<IServiceInstance> GetCandidates(string serviceName)
         {
-            _map.TryGetValue(serviceName, out var instanceMap);
-            return instanceMap?.Values.ToList();
+            _cache.TryGetValue(serviceName, out var cacheRecord);
+            return cacheRecord?.InstanceMap.Values.ToList();
         }
 
         public bool Exists(string serviceName, Guid serviceId)
         {
-            if (!_map.TryGetValue(serviceName, out var instanceMap))
+            if (!_cache.TryGetValue(serviceName, out var cacheRecord))
             {
                 return false;
             }
-            return instanceMap?.ContainsKey(serviceId) ?? false;
+            return cacheRecord?.InstanceMap.ContainsKey(serviceId) ?? false;
         }
 
         public void Clear()
         {
-            _map.Clear();
+            foreach (var record in _cache.Values)
+            {
+                record.InstanceMap.Clear();
+            }
+        }
+    }
+
+    public class InstanceCacheRecord
+    {
+        public ConcurrentDictionary<Guid, IServiceInstance> InstanceMap { get; } =
+            new ConcurrentDictionary<Guid, IServiceInstance>();
+
+        public BalancePolicy Policy =>
+            InstanceMap.Values.FirstOrDefault()?.BalancePolicy ?? BalancePolicy.RoundRobin;
+
+        public int Version;
+
+        public void VersionUp()
+        {
+            Interlocked.Increment(ref Version);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Keep.Discovery.Contract;
+using Keep.Discovery.LoadBalancer;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,6 +20,8 @@ namespace Keep.Discovery.Contract
         int Weight { get; }
 
         ServiceState ServiceState { get; }
+
+        BalancePolicy BalancePolicy { get; }
 
         Uri Uri { get; }
 

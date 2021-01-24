@@ -19,7 +19,7 @@ namespace Demo.Discovery.ZooPicker.S.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
-            await Task.Delay(500);
+            //await Task.Delay(500);
             var data = new List<User>
             {
                 new User{ Id = 1, Name = "Jim", Age = 17 },

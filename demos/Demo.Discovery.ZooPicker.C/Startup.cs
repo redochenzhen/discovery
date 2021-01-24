@@ -7,9 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Demo.Discovery.ZooPicker.C
 {
@@ -33,7 +30,7 @@ namespace Demo.Discovery.ZooPicker.C
             services
                 .AddDiscovery(options =>
                 {
-#if !DEBUG
+#if DEBUG
                     options.UseZooPicker();
 #else
                     options.UseStaticMapping();

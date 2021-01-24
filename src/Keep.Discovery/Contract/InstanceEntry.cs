@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Keep.Discovery.LoadBalancer;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -18,6 +19,9 @@ namespace Keep.Discovery.Contract
 
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public ServiceState State { get; set; } = ServiceState.Up;
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public BalancePolicy Policy { get; set; } = BalancePolicy.RoundRobin;
 
         public bool Secure { get; set; }
 

@@ -1,4 +1,5 @@
 ﻿using Keep.Discovery.Exceptions;
+using Keep.Discovery.Pump;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -16,15 +17,18 @@ namespace Keep.Discovery.Worker
         private readonly IDiscoveryClient _discoveryClient;
         private bool _isHealthy = true;
         private CancellationTokenSource _cts;
+        private readonly IDispatcher _dispather;
 
         public DiscoveryWorker(
             ILogger<DiscoveryWorker> logger,
             IOptions<DiscoveryOptions> options,
-            IDiscoveryClient discoveryClient)
+            IDiscoveryClient discoveryClient,
+            IDispatcher dispather)
         {
             _logger = logger;
             _options = options.Value;
             _discoveryClient = discoveryClient;
+            _dispather = dispather;
             _cts = new CancellationTokenSource();
         }
 
@@ -53,6 +57,8 @@ namespace Keep.Discovery.Worker
                     Restart();
                 }
             }, _cts.Token);
+
+            _dispather.Pumping();
         }
 
         public void Pulse()

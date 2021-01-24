@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Keep.Discovery.ZooPicker;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,16 +14,17 @@ namespace Demo.Discovery.ZooPicker.S.Controllers
     public class TestController : ControllerBase
     {
         private readonly ILogger<TestController> _logger;
-
-        public TestController(ILogger<TestController> logger)
+        IOptions<ZooPickerOptions> _options;
+        public TestController(ILogger<TestController> logger,IOptions<ZooPickerOptions> options)
         {
             _logger = logger;
+            _options = options;
         }
 
         [HttpGet]
         public string Get()
         {
-            return "Hello Keep.Discovery!";
+            return _options.Value.Instance.IpAddress;
         }
     }
 }

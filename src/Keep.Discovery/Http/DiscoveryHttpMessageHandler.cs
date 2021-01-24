@@ -1,4 +1,7 @@
-﻿using Keep.Discovery.LoadBalancer;
+﻿using Keep.Discovery.Internal;
+using Keep.Discovery.LoadBalancer;
+using Keep.Discovery.Pump;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -15,41 +18,33 @@ namespace Keep.Discovery.Http
 {
     internal class DiscoveryHttpMessageHandler : DelegatingHandler
     {
-        private readonly IDiscoveryClient _discoveryClient;
+        private readonly ILogger _logger;
+
         private readonly DiscoveryOptions _options;
-        private readonly IBalancer _balancer;
+        private readonly IDispatcher _dispather;
 
         public DiscoveryHttpMessageHandler(
+            ILogger<DiscoveryHttpMessageHandler> logger,
             IOptions<DiscoveryOptions> options,
-            IDiscoveryClient discoveryClient,
-            IBalancer balancer)
+            IDispatcher dispather)
         {
+            _logger = logger;
             _options = options.Value;
-            _discoveryClient = discoveryClient;
-            _balancer = balancer;
+            _dispather = dispather;
         }
+
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var current = request.RequestUri;
-            string originalScheme = current.Scheme;
-            string serviceName = current.Host;
-            var instances = _discoveryClient.ResolveInstances(serviceName);
-            var instance = _balancer.PickOne(instances);
-            var uri = instance?.Uri;
-            if (uri != null)
+            var ctx = new HandlingContext
             {
-                request.RequestUri = new Uri(uri, current.PathAndQuery);
-            }
-            try
-            {
-                var response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-                return response;
-            }
-            finally
-            {
-                request.RequestUri = current;
-            }
+                Request = request,
+                HandleAsync = base.SendAsync,
+                ResponsSource = new TaskCompletionSource<HttpResponseMessage>(cancellationToken),
+                CancellationToken = cancellationToken
+            };
+            await _dispather.AcceptThenDispatchAsync(ctx);
+            return await ctx.ResponsSource.Task;
         }
     }
 }

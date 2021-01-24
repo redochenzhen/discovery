@@ -18,16 +18,16 @@ namespace Keep.Discovery.ZooPicker
 
         private readonly ILogger _logger;
         private readonly ZooPickerOptions _options;
-        private readonly InstanceCache _instanceRegistry;
+        private readonly InstanceCache _instanceCache;
 
         public ZooPickerDiscoveryClient(
             ILogger<ZooPickerDiscoveryClient> logger,
             IOptions<ZooPickerOptions> options,
-            InstanceCache instanceRegistry)
+            InstanceCache instanceCache)
         {
             _logger = logger;
             _options = options.Value;
-            _instanceRegistry = instanceRegistry;
+            _instanceCache = instanceCache;
         }
 
         public async Task DiscoverAsync()
@@ -87,13 +87,13 @@ namespace Keep.Discovery.ZooPicker
             }
         }
 
-        public IList<IServiceInstance> ResolveInstances(string serviceName)
-        {
-            var candidates = _instanceRegistry.GetCandidates(serviceName)
-                .Where(i => i.ServiceState == ServiceState.Up)
-                .ToList();
-            return candidates;
-        }
+        //public IList<IServiceInstance> ResolveInstances(string serviceName)
+        //{
+        //    var candidates = _instanceCache.GetCandidates(serviceName)
+        //        .Where(i => i.ServiceState == ServiceState.Up)
+        //        .ToList();
+        //    return candidates;
+        //}
 
         private async Task<ZooKeeperClient> CreateAndOpenZkClient(TaskCompletionSource<Void> tcs)
         {
@@ -128,28 +128,28 @@ namespace Keep.Discovery.ZooPicker
             foreach (var sid in serviceIds)
             {
                 if (!Guid.TryParse(sid, out var serviceId)) continue;
-                if (_instanceRegistry.Exists(serviceName, serviceId)) continue;
+                if (_instanceCache.Exists(serviceName, serviceId)) continue;
                 var instanceNode = await serviceNode.ProxyJsonNodeAsync<InstanceEntry>(sid, true);
                 instanceNode.NodeCreated += async (_, __) =>
                  {
-                     await WriteToRegistryAsync(instanceNode, serviceName, serviceId);
+                     await WriteToCacheAsync(instanceNode, serviceName, serviceId);
                      _logger.LogDebug($"[{serviceName}] add an instance: '{serviceId}'");
                  };
                 instanceNode.NodeDeleted += (_, __) =>
                  {
-                     _instanceRegistry.Remove(serviceName, serviceId);
+                     _instanceCache.Remove(serviceName, serviceId);
                      _logger.LogDebug($"[{serviceName}] lost an instance: '{serviceId}'");
                  };
                 instanceNode.DataChanged += (_, args) =>
                  {
                      //TODO: update
                  };
-                await WriteToRegistryAsync(instanceNode, serviceName, serviceId);
+                await WriteToCacheAsync(instanceNode, serviceName, serviceId);
                 _logger.LogDebug($"[{serviceName}] add an instance: '{serviceId}'");
             }
         }
 
-        private async Task WriteToRegistryAsync(IDataNode<InstanceEntry> node, string serviceName, Guid serviceId)
+        private async Task WriteToCacheAsync(IDataNode<InstanceEntry> node, string serviceName, Guid serviceId)
         {
             var entry = await node.GetDataAsync();
             var instance = new ServiceInstance(entry.Host, entry.Port, entry.Secure)
@@ -159,7 +159,7 @@ namespace Keep.Discovery.ZooPicker
                 ServiceType = entry.Type,
                 Weight = entry.Weight
             };
-            _instanceRegistry.Add(serviceName, serviceId, instance);
+            _instanceCache.Add(serviceName, serviceId, instance);
         }
     }
 

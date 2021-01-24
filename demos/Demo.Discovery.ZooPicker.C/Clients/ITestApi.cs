@@ -10,5 +10,8 @@ namespace Demo.Discovery.ZooPicker.C.Clients
     {
         [Get("/users/{id}")]
         Task<User> GetUserAsync(int id);
+
+        [Get("/test")]
+        Task<string> GetAsync();
     }
 }

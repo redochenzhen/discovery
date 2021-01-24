@@ -15,16 +15,16 @@ namespace Keep.Discovery.StaticDiscovery
         private readonly ILogger _logger;
         private readonly IOptionsMonitor<StaticDiscoveryOptions> _options;
         private event EventHandler<OptionsEventArgs> OptionsChanged;
-        InstanceCache _instanceRegistry;
+        InstanceCache _instanceCache;
 
         public StaticDiscoveryClient(
             ILogger<StaticDiscoveryClient> logger,
             IOptionsMonitor<StaticDiscoveryOptions> options,
-            InstanceCache instanceRegistry)
+            InstanceCache instanceCache)
         {
             _logger = logger;
             _options = options;
-            _instanceRegistry = instanceRegistry;
+            _instanceCache = instanceCache;
         }
 
         public Task DiscoverAsync()
@@ -37,8 +37,8 @@ namespace Keep.Discovery.StaticDiscovery
                 .Subscribe(x =>
                 {
                     var opts = x.EventArgs.Options;
-                    _instanceRegistry.Clear();
-                    WriteToRegistry(opts.Mapping);
+                    _instanceCache.Clear();
+                    WriteToCache(opts.Mapping);
                     _logger.LogDebug("Static service mapping refreshing done.");
                 });
 
@@ -51,7 +51,7 @@ namespace Keep.Discovery.StaticDiscovery
             });
 
             var options = _options.CurrentValue;
-            WriteToRegistry(options.Mapping);
+            WriteToCache(options.Mapping);
             return Task.CompletedTask;
         }
 
@@ -61,30 +61,23 @@ namespace Keep.Discovery.StaticDiscovery
             return Task.CompletedTask;
         }
 
-        public IList<IServiceInstance> ResolveInstances(string serviceName)
-        {
-            var candidates = _instanceRegistry.GetCandidates(serviceName)
-                .Where(i => i.ServiceState == ServiceState.Up)
-                .ToList();
-            if (candidates.Count == 0)
-            {
-                _logger.LogWarning($"Service name '{serviceName}' can not be resolved to any instance.");
-            }
-            return candidates;
-        }
-
-        private void WriteToRegistry(IList<StaticServiceEntry> entries)
+        private void WriteToCache(IList<StaticServiceEntry> entries)
         {
             if (entries == null) return;
             foreach (var se in entries)
             {
+                if (se.Instances == null) continue;
                 foreach (var ie in se.Instances)
                 {
                     var instance = new ServiceInstance(ie.Host, ie.Port, ie.Secure)
                     {
-                        ServiceName = se.ServiceName
+                        ServiceName = se.ServiceName,
+                        BalancePolicy = ie.Policy,
+                        Weight = ie.Weight,
+                        ServiceState = ie.State,
+                        ServiceType = ie.Type
                     };
-                    _instanceRegistry.Add(se.ServiceName, Guid.NewGuid(), instance);
+                    _instanceCache.Add(se.ServiceName, Guid.NewGuid(), instance);
                 }
             }
         }

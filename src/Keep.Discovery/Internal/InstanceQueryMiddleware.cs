@@ -16,7 +16,7 @@ namespace Keep.Discovery.Internal
     public class InstanceQueryMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly InstanceCache _instanceRegistry;
+        private readonly InstanceCache _instanceCache;
         private readonly DiscoveryOptions _options;
 
         public InstanceQueryMiddleware(
@@ -25,7 +25,7 @@ namespace Keep.Discovery.Internal
             InstanceCache instanceRegistry)
         {
             _next = next;
-            _instanceRegistry = instanceRegistry ?? throw new ArgumentNullException(nameof(instanceRegistry));
+            _instanceCache = instanceRegistry ?? throw new ArgumentNullException(nameof(instanceRegistry));
             _options = discoveryOptions?.Value ?? throw new ArgumentNullException(nameof(discoveryOptions));
         }
 
@@ -36,11 +36,11 @@ namespace Keep.Discovery.Internal
                 await _next(context);
                 return;
             }
-            var mapping = _instanceRegistry.GetAll()
+            var mapping = _instanceCache.GetAll()
                 .Select(kv => new StaticServiceEntry
                 {
                     ServiceName = kv.Key,
-                    Instances = kv.Value.Values
+                    Instances = kv.Value.InstanceMap.Values
                     .Select(si => new InstanceEntry
                     {
                         Host = si.HostName,

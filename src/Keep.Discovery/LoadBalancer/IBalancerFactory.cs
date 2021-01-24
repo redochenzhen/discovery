@@ -5,8 +5,8 @@ using System.Text;
 
 namespace Keep.Discovery.LoadBalancer
 {
-    public interface IBalancer
+    internal interface IBalancerFactory
     {
-        IServiceInstance Pick();
+        IBalancer CreateBalancer(string serviceName);
     }
 }

@@ -8,8 +8,6 @@ namespace Keep.Discovery
 {
     public interface IDiscoveryClient
     {
-        IList<IServiceInstance> ResolveInstances(string serviceName);
-
         Task RegisterAsync();
 
         Task DiscoverAsync();

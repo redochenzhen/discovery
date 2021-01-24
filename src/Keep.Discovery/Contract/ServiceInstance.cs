@@ -1,4 +1,5 @@
 ﻿using Keep.Discovery.Contract;
+using Keep.Discovery.LoadBalancer;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -28,6 +29,8 @@ namespace Keep.Discovery.Contract
         public ServiceType ServiceType { get; set; } = ServiceType.Rest;
 
         public int Weight { get; set; }
+
+        public BalancePolicy BalancePolicy { get; set; } = BalancePolicy.RoundRobin;
 
         public ServiceInstance(string hostName, int port, bool isSecure = false)
         {

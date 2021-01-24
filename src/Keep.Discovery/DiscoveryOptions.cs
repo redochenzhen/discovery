@@ -13,6 +13,8 @@ namespace Keep.Discovery
 
         public bool ShouldRegister { get; set; } = false;
 
+        public int WorkerThreads { get; set; } = Environment.ProcessorCount;
+
         public string PathMatch { get; set; } = "/discovery";
     }
 }
