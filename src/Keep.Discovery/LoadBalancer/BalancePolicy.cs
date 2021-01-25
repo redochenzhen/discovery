@@ -8,6 +8,6 @@ namespace Keep.Discovery.LoadBalancer
     {
         RoundRobin,
         Random,
-        LestConnection
+        RandomTwo
     }
 }

@@ -80,20 +80,13 @@ namespace Keep.Discovery.ZooPicker
                     Type = instanceOpts.ServiceType,
                     State = instanceOpts.ServiceState,
                     Secure = instanceOpts.IsSecure,
-                    Weight = instanceOpts.Weight
+                    Weight = instanceOpts.Weight,
+                    Policy = instanceOpts.BalancePolicy
                 };
                 await instanceNode.CreateAsync(entry, Permission.All, Mode.Ephemeral);
                 await waitForExpirationTcs.Task;
             }
         }
-
-        //public IList<IServiceInstance> ResolveInstances(string serviceName)
-        //{
-        //    var candidates = _instanceCache.GetCandidates(serviceName)
-        //        .Where(i => i.ServiceState == ServiceState.Up)
-        //        .ToList();
-        //    return candidates;
-        //}
 
         private async Task<ZooKeeperClient> CreateAndOpenZkClient(TaskCompletionSource<Void> tcs)
         {
@@ -157,7 +150,8 @@ namespace Keep.Discovery.ZooPicker
                 ServiceName = entry.Name,
                 ServiceState = entry.State,
                 ServiceType = entry.Type,
-                Weight = entry.Weight
+                Weight = entry.Weight,
+                BalancePolicy = entry.Policy
             };
             _instanceCache.Add(serviceName, serviceId, instance);
         }

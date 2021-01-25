@@ -30,7 +30,7 @@ namespace Demo.Discovery.ZooPicker.C
             services
                 .AddDiscovery(options =>
                 {
-#if DEBUG
+#if !DEBUG
                     options.UseZooPicker();
 #else
                     options.UseStaticMapping();

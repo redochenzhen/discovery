@@ -30,9 +30,15 @@ namespace Keep.Discovery.LoadBalancer
                 var rrBalancer = new RoundRobinBalancer(logger, record);
                 return rrBalancer;
             }
+            else if (policy == BalancePolicy.Random)
+            {
+                var logger = _serviceProvider.GetService<ILogger<RandomBalancer>>();
+                var rdBalancer = new RandomBalancer(logger, record);
+                return rdBalancer;
+            }
             else
             {
-                throw new NotSupportedException();
+                throw new NotSupportedException($"This balance policy({policy}) is not sopported yet.");
             }
         }
     }

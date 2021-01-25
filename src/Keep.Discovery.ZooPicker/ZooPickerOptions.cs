@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Keep.Common;
 using Keep.Discovery.Contract;
+using Keep.Discovery.LoadBalancer;
 
 namespace Keep.Discovery.ZooPicker
 {
@@ -25,6 +26,7 @@ namespace Keep.Discovery.ZooPicker
             public int Weight { get; set; } = 1;
             public ServiceState ServiceState { get; set; } = ServiceState.Up;
             public ServiceType ServiceType { get; set; } = ServiceType.Rest;
+            public BalancePolicy BalancePolicy { get; set; } = BalancePolicy.RoundRobin;
             public string IpAddress { get; set; }
             public bool PreferIpAddress { get; set; }
         }

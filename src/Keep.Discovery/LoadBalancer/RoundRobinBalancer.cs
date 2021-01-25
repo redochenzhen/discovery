@@ -1,50 +1,17 @@
 ﻿using Keep.Discovery.Contract;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
-
-
-[assembly: InternalsVisibleTo("Keep.Discovery.Tests")]
 
 namespace Keep.Discovery.LoadBalancer
 {
-    internal class RoundRobinBalancer : IBalancer
+    internal class RoundRobinBalancer : BalancerBase
     {
-        private readonly ILogger _logger;
-        private IList<UpstreamPeer> _peers;
-        private InstanceCacheRecord _record;
-        private int _currentVer = 0;
-        private int CacheVer => _record?.Version ?? 0;
-
-        public RoundRobinBalancer(ILogger logger, InstanceCacheRecord record)
+        public RoundRobinBalancer(ILogger logger, InstanceCacheRecord record) : base(logger, record)
         {
-            _logger = logger;
-            _record = record ?? throw new ArgumentNullException(nameof(record));
             Reset();
         }
 
-        private void Reset()
-        {
-            _peers = _record?.InstanceMap.Values
-                .Select(ins => new UpstreamPeer
-                {
-                    Instance = ins,
-                    EffectiveWeight = ins.Weight,
-                    CurrentWeight = 0,
-                })
-                .ToList();
-            _currentVer = CacheVer;
-            if (_currentVer != 0)
-            {
-                _logger?.LogDebug($"Upstream peers reset due to cache vertion changes. (count: {_peers.Count}, version: {_currentVer})");
-            }
-        }
-
-        public IServiceInstance Pick()
+        public override IServiceInstance Pick()
         {
             if (_currentVer != CacheVer)
             {
@@ -84,6 +51,23 @@ namespace Keep.Discovery.LoadBalancer
             best.CurrentWeight -= total;
             //_logger?.LogDebug()
             return best?.Instance;
+        }
+
+        protected override void Reset()
+        {
+            _peers = _record.InstanceMap.Values
+                .Select(ins => new UpstreamPeer
+                {
+                    Instance = ins,
+                    EffectiveWeight = ins.Weight,
+                    CurrentWeight = 0,
+                })
+                .ToList();
+            _currentVer = CacheVer;
+            if (_currentVer != 0)
+            {
+                _logger?.LogDebug($"Upstream peers reset due to cache vertion changes. (count: {_peers.Count}, version: {_currentVer})");
+            }
         }
     }
 }

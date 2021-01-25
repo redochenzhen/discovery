@@ -47,7 +47,8 @@ namespace Keep.Discovery.Internal
                         Port = si.Port,
                         Secure = si.IsSecure,
                         State = si.ServiceState,
-                        Weight = si.Weight
+                        Weight = si.Weight,
+                        Policy = si.BalancePolicy
                     })
                     .ToList()
                 })
