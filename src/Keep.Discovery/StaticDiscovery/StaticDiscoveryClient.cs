@@ -14,8 +14,8 @@ namespace Keep.Discovery.StaticDiscovery
     {
         private readonly ILogger _logger;
         private readonly IOptionsMonitor<StaticDiscoveryOptions> _options;
+        private readonly InstanceCache _instanceCache;
         private event EventHandler<OptionsEventArgs> OptionsChanged;
-        InstanceCache _instanceCache;
 
         public StaticDiscoveryClient(
             ILogger<StaticDiscoveryClient> logger,
@@ -77,7 +77,7 @@ namespace Keep.Discovery.StaticDiscovery
                         ServiceState = ie.State,
                         ServiceType = ie.Type
                     };
-                    _instanceCache.Add(se.ServiceName, Guid.NewGuid(), instance);
+                    _instanceCache.AddOrUpdate(se.ServiceName, Guid.NewGuid(), instance);
                 }
             }
         }

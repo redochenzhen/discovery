@@ -14,20 +14,16 @@ namespace Keep.Discovery.Pump
 {
     internal class Dispatcher : IDispatcher
     {
+        private readonly ILogger _logger;
         private readonly CancellationTokenSource _cts;
         private readonly BufferBlock<HandlingContext> _requestBuffer;
-        private readonly ILogger _logger;
         private readonly DiscoveryOptions _options;
-        private readonly IDiscoveryClient _discoveryClient;
-
         private readonly IBalancerFactory _balancerFactory;
         private readonly ThreadLocal<Dictionary<string, IBalancer>> _balancers;
-        private readonly object _lock;
 
         public Dispatcher(
             ILogger<Dispatcher> logger,
             IOptions<DiscoveryOptions> options,
-            IDiscoveryClient discoveryClient,
             IBalancerFactory balancerFactory)
         {
             _cts = new CancellationTokenSource();
@@ -39,7 +35,6 @@ namespace Keep.Discovery.Pump
 
             _logger = logger;
             _options = options.Value;
-            _discoveryClient = discoveryClient;
             _balancerFactory = balancerFactory;
             _balancers = new ThreadLocal<Dictionary<string, IBalancer>>();
         }
@@ -102,11 +97,15 @@ namespace Keep.Discovery.Pump
                         try
                         {
                             var response = await ctx.HandleAsync(request, ctx.CancellationToken);
-                            ctx.ResponsSource.TrySetResult(response);
+                            tcs.TrySetResult(response);
                         }
                         catch (Exception ex)
                         {
-                            ctx.ResponsSource.TrySetException(ex);
+                            tcs.TrySetException(ex);
+                        }
+                        finally
+                        {
+                            request.RequestUri = current;
                         }
                     });
                 }
@@ -114,6 +113,7 @@ namespace Keep.Discovery.Pump
                 {
                     tcs.TrySetException(ex.InnerException ?? ex);
                 }
+
             }
         }
 

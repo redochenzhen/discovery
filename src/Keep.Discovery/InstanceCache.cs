@@ -39,7 +39,7 @@ namespace Keep.Discovery
             return cacheRecord;
         }
 
-        public void Add(string serviceName, Guid serviceId, IServiceInstance instance)
+        public void AddOrUpdate(string serviceName, Guid serviceId, IServiceInstance instance)
         {
             if (!_cache.TryGetValue(serviceName, out var cacheRecord))
             {

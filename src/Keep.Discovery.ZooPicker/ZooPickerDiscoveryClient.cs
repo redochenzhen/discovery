@@ -8,7 +8,9 @@ using org.apache.zookeeper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
+using static Keep.Discovery.ZooPicker.ZooPickerOptions;
 
 namespace Keep.Discovery.ZooPicker
 {
@@ -17,26 +19,28 @@ namespace Keep.Discovery.ZooPicker
         private static readonly string SERVICE_ID = Guid.NewGuid().ToString();
 
         private readonly ILogger _logger;
-        private readonly ZooPickerOptions _options;
+        private readonly IOptionsMonitor<ZooPickerOptions> _options;
         private readonly InstanceCache _instanceCache;
+        private event EventHandler<OptionsEventArgs> OptionsChanged;
 
         public ZooPickerDiscoveryClient(
             ILogger<ZooPickerDiscoveryClient> logger,
-            IOptions<ZooPickerOptions> options,
+            IOptionsMonitor<ZooPickerOptions> options,
             InstanceCache instanceCache)
         {
             _logger = logger;
-            _options = options.Value;
+            _options = options;
             _instanceCache = instanceCache;
         }
 
         public async Task DiscoverAsync()
         {
+            var options = _options.CurrentValue;
             var waitForExpirationTcs = new TaskCompletionSource<Void>();
             using (var zkClient = await CreateAndOpenZkClient(waitForExpirationTcs))
             {
                 //var rc = Permission.Read | Permission.Create;
-                var groupNode = await zkClient.ProxyNodeAsync(_options.GroupName);
+                var groupNode = await zkClient.ProxyNodeAsync(options.GroupName);
                 await groupNode.CreateAsync(Permission.All, Mode.Persistent, true);
                 var serviceNames = await groupNode.GetChildrenAsync();
                 foreach (var sn in serviceNames)
@@ -57,12 +61,21 @@ namespace Keep.Discovery.ZooPicker
 
         public async Task RegisterAsync()
         {
+            var options = _options.CurrentValue;
             var waitForExpirationTcs = new TaskCompletionSource<Void>();
+            var dispos = _options.OnChange(opts =>
+            {
+                OptionsChanged(this, new OptionsEventArgs
+                {
+                    Options = opts
+                });
+            });
+            using (dispos)
             using (var zkClient = await CreateAndOpenZkClient(waitForExpirationTcs))
             {
-                var instanceOpts = _options.Instance;
+                var instanceOpts = options.Instance;
                 var serviceName = instanceOpts.ServiceName;
-                var groupNode = await zkClient.ProxyNodeAsync(_options.GroupName);
+                var groupNode = await zkClient.ProxyNodeAsync(options.GroupName);
                 await groupNode.CreateAsync(Permission.All, Mode.Persistent, true);
                 var serviceNode = await groupNode.ProxyNodeAsync(serviceName);
                 await serviceNode.CreateAsync(Permission.All, Mode.Persistent, true);
@@ -83,17 +96,41 @@ namespace Keep.Discovery.ZooPicker
                     Weight = instanceOpts.Weight,
                     Policy = instanceOpts.BalancePolicy
                 };
+                Observable.FromEventPattern<OptionsEventArgs>(
+                    h => OptionsChanged += h,
+                    h => OptionsChanged -= h)
+                   .Throttle(TimeSpan.FromSeconds(1))
+                   .Subscribe(async x =>
+                   {
+                       var opts = x.EventArgs.Options;
+                       var insOpts = opts.Instance;
+                       if (ShouldUpdate(entry, insOpts))
+                       {
+                           entry.State = insOpts.ServiceState;
+                           entry.Weight = insOpts.Weight;
+                           await instanceNode.SetDataAsync(entry);
+                           _logger.LogDebug($"[{serviceName}] state: {entry.State}, weight: {entry.Weight}");
+                       }
+                   });
+
                 await instanceNode.CreateAsync(entry, Permission.All, Mode.Ephemeral);
                 await waitForExpirationTcs.Task;
             }
         }
 
+        private bool ShouldUpdate(InstanceEntry entry, ZooKeeperInstanceOptions insOpts)
+        {
+            return entry.State != insOpts.ServiceState ||
+                entry.Weight != insOpts.Weight;
+        }
+
         private async Task<ZooKeeperClient> CreateAndOpenZkClient(TaskCompletionSource<Void> tcs)
         {
+            var options = _options.CurrentValue;
             var zkClient = new ZooKeeperClient(
-                _options.ConnectionString,
-                _options.SessionTimeout,
-                _options.ConnectionTimeout);
+                options.ConnectionString,
+                options.SessionTimeout,
+                options.ConnectionTimeout);
             await zkClient.OpenAsync();
             zkClient.FirstConnected += (_, __) =>
             {
@@ -116,7 +153,7 @@ namespace Keep.Discovery.ZooPicker
             return zkClient;
         }
 
-        private async Task DiscoverServicesAsync(INode serviceNode, string serviceName, List<string> serviceIds)
+        private async Task DiscoverServicesAsync(INodeProxy serviceNode, string serviceName, List<string> serviceIds)
         {
             foreach (var sid in serviceIds)
             {
@@ -125,7 +162,8 @@ namespace Keep.Discovery.ZooPicker
                 var instanceNode = await serviceNode.ProxyJsonNodeAsync<InstanceEntry>(sid, true);
                 instanceNode.NodeCreated += async (_, __) =>
                  {
-                     await WriteToCacheAsync(instanceNode, serviceName, serviceId);
+                     var ent = await instanceNode.GetDataAsync();
+                     WriteToCache(ent, serviceName, serviceId);
                      _logger.LogDebug($"[{serviceName}] add an instance: '{serviceId}'");
                  };
                 instanceNode.NodeDeleted += (_, __) =>
@@ -135,16 +173,17 @@ namespace Keep.Discovery.ZooPicker
                  };
                 instanceNode.DataChanged += (_, args) =>
                  {
-                     //TODO: update
+                     WriteToCache(args.Data, serviceName, serviceId);
+                     _logger.LogDebug($"[{serviceName}] update an instance: '{serviceId}'");
                  };
-                await WriteToCacheAsync(instanceNode, serviceName, serviceId);
+                var entry = await instanceNode.GetDataAsync();
+                WriteToCache(entry, serviceName, serviceId);
                 _logger.LogDebug($"[{serviceName}] add an instance: '{serviceId}'");
             }
         }
 
-        private async Task WriteToCacheAsync(IDataNode<InstanceEntry> node, string serviceName, Guid serviceId)
+        private void WriteToCache(InstanceEntry entry, string serviceName, Guid serviceId)
         {
-            var entry = await node.GetDataAsync();
             var instance = new ServiceInstance(entry.Host, entry.Port, entry.Secure)
             {
                 ServiceName = entry.Name,
@@ -153,7 +192,12 @@ namespace Keep.Discovery.ZooPicker
                 Weight = entry.Weight,
                 BalancePolicy = entry.Policy
             };
-            _instanceCache.Add(serviceName, serviceId, instance);
+            _instanceCache.AddOrUpdate(serviceName, serviceId, instance);
+        }
+
+        class OptionsEventArgs : EventArgs
+        {
+            public ZooPickerOptions Options { get; set; }
         }
     }
 

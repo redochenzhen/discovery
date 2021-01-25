@@ -107,7 +107,7 @@ namespace Keep.Discovery.LoadBalancer
             _currentVer = CacheVer;
             if (_currentVer != 0)
             {
-                _logger?.LogDebug($"Upstream peers reset due to cache vertion changes. (count: {_peers.Count}, version: {_currentVer})");
+                _logger?.LogDebug($"Upstream peers reset due to cache vertion changing. (count: {_peers.Count}, version: {_currentVer})");
             }
         }
 
