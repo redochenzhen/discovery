@@ -1,9 +1,6 @@
-﻿using Keep.Common;
+﻿using Keep.Common.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Keep.Discovery.StaticDiscovery
 {

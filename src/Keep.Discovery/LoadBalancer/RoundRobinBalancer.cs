@@ -1,6 +1,7 @@
 ﻿using Keep.Discovery.Contract;
 using Microsoft.Extensions.Logging;
 using System.Linq;
+using System.Text;
 
 namespace Keep.Discovery.LoadBalancer
 {
@@ -47,9 +48,12 @@ namespace Keep.Discovery.LoadBalancer
                     peer.EffectiveWeight--;
                 }
             }
-
             best.CurrentWeight -= total;
-            //_logger?.LogDebug()
+#if DEBUG
+            var cw = _peers.Aggregate(new StringBuilder(), (a, c) => a.Append(c.CurrentWeight).Append(", "));
+            cw.Remove(cw.Length - 2, 2);
+            _logger?.LogDebug($"Current weights: ({cw})");
+#endif
             return best?.Instance;
         }
 
@@ -66,7 +70,7 @@ namespace Keep.Discovery.LoadBalancer
             _currentVer = CacheVer;
             if (_currentVer != 0)
             {
-                _logger?.LogDebug($"Upstream peers reset due to cache vertion changes. (count: {_peers.Count}, version: {_currentVer})");
+                _logger?.LogDebug($"Upstream peers reset due to cache vertion changing. (count: {_peers.Count}, version: {_currentVer})");
             }
         }
     }

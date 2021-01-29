@@ -84,6 +84,11 @@ namespace Keep.Discovery.LoadBalancer
                     break;
                 }
             }
+#if DEBUG
+            var cw = _peers.Aggregate(new StringBuilder("0 - "), (a, c) => a.Append(c.CurrentWeight).Append(" - "));
+            cw.Remove(cw.Length - 3, 3);
+            _logger?.LogDebug($"Current weight ranges: ({cw})");
+#endif
             return best?.Instance;
         }
 

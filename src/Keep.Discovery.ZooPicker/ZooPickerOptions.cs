@@ -16,9 +16,9 @@ namespace Keep.Discovery.ZooPicker
         public int ConnectionTimeout { get; set; } = 1000 * 20;
         public string GroupName { get; set; } = "Default";
 
-        public ZooKeeperInstanceOptions Instance { get; set; }
+        public InstanceOptions Instance { get; set; }
 
-        public class ZooKeeperInstanceOptions
+        public class InstanceOptions
         {
             public string ServiceName { get; set; }
             public int Port { get; set; } = 80;

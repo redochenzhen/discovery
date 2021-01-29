@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
-namespace Keep.Discovery.Internal
+namespace Keep.Discovery
 {
-    internal interface IDiscoveryEntry
+    public interface IDiscoveryEntry
     {
         void Boot(CancellationToken stoppingToken);
     }

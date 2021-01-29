@@ -7,10 +7,8 @@ using Microsoft.Extensions.Options;
 using org.apache.zookeeper;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using static Keep.Discovery.ZooPicker.ZooPickerOptions;
 
 namespace Keep.Discovery.ZooPicker
 {
@@ -118,7 +116,7 @@ namespace Keep.Discovery.ZooPicker
             }
         }
 
-        private bool ShouldUpdate(InstanceEntry entry, ZooKeeperInstanceOptions insOpts)
+        private bool ShouldUpdate(InstanceEntry entry, ZooPickerOptions.InstanceOptions insOpts)
         {
             return entry.State != insOpts.ServiceState ||
                 entry.Weight != insOpts.Weight;

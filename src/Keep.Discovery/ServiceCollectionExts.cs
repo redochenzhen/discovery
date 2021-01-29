@@ -40,6 +40,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var sp = services.BuildServiceProvider();
             var config = sp.GetRequiredService<IConfiguration>();
             services.Configure<DiscoveryOptions>(config.GetSection(DiscoveryOptions.CONFIG_PREFIX));
+            sp = services.BuildServiceProvider();
             var options = sp.GetService<IOptions<DiscoveryOptions>>().Value;
             configure(options);
 
@@ -62,6 +63,16 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IDiscoveryEntry, DiscoveryEntry>();
             services.AddHostedService<DiscoveryEntry>();
             return services;
+        }
+
+        public static IHttpClientBuilder AddDiscoveryHttpClient(
+            this IServiceCollection services,
+            string name,
+            Action<HttpClient> configureClient = null)
+        {
+            var builder = services.AddHttpClient(name, configureClient ?? _noAction)
+                .AddHttpMessageHandler<DiscoveryHttpMessageHandler>();
+            return builder;
         }
 
         public static IHttpClientBuilder AddDiscoveryHttpClient<TClient>(
