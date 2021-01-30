@@ -83,17 +83,8 @@ namespace Keep.Discovery.ZooPicker
                 {
                     hostName = instanceOpts.IpAddress ?? DnsHelper.ResolveIpAddress(hostName);
                 }
-                var entry = new InstanceEntry
-                {
-                    Name = serviceName,
-                    Host = hostName,
-                    Port = instanceOpts.Port,
-                    Type = instanceOpts.ServiceType,
-                    State = instanceOpts.ServiceState,
-                    Secure = instanceOpts.IsSecure,
-                    Weight = instanceOpts.Weight,
-                    Policy = instanceOpts.BalancePolicy
-                };
+                var entry = instanceOpts.ToEntry();
+                entry.Host = hostName;
                 Observable.FromEventPattern<OptionsEventArgs>(
                     h => OptionsChanged += h,
                     h => OptionsChanged -= h)
@@ -182,14 +173,7 @@ namespace Keep.Discovery.ZooPicker
 
         private void WriteToCache(InstanceEntry entry, string serviceName, Guid serviceId)
         {
-            var instance = new ServiceInstance(entry.Host, entry.Port, entry.Secure)
-            {
-                ServiceName = entry.Name,
-                ServiceState = entry.State,
-                ServiceType = entry.Type,
-                Weight = entry.Weight,
-                BalancePolicy = entry.Policy
-            };
+            var instance = entry.ToInstance();
             _instanceCache.AddOrUpdate(serviceName, serviceId, instance);
         }
 

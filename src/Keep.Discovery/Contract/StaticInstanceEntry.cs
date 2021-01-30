@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Keep.Discovery.Contract
 {
-    internal class StaticServiceEntry
+    internal class StaticInstanceEntry
     {
         public string ServiceName { get; set; }
         public List<InstanceEntry> Instances { get; set; }

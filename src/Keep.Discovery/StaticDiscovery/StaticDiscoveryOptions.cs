@@ -9,6 +9,6 @@ namespace Keep.Discovery.StaticDiscovery
     {
         public const string CONFIG_PREFIX = "discovery";
 
-        public List<StaticServiceEntry> Mapping { get; set; }
+        public List<StaticInstanceEntry> Mapping { get; set; }
     }
 }

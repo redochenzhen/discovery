@@ -11,6 +11,8 @@ namespace Keep.Discovery.Contract
     {
         string ServiceName { get; }
 
+        ServiceType ServiceType { get; }
+
         string HostName { get; }
 
         int Port { get; }

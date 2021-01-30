@@ -61,7 +61,7 @@ namespace Keep.Discovery.StaticDiscovery
             return Task.CompletedTask;
         }
 
-        private void WriteToCache(IList<StaticServiceEntry> entries)
+        private void WriteToCache(IList<StaticInstanceEntry> entries)
         {
             if (entries == null) return;
             foreach (var se in entries)
@@ -69,14 +69,7 @@ namespace Keep.Discovery.StaticDiscovery
                 if (se.Instances == null) continue;
                 foreach (var ie in se.Instances)
                 {
-                    var instance = new ServiceInstance(ie.Host, ie.Port, ie.Secure)
-                    {
-                        ServiceName = se.ServiceName,
-                        BalancePolicy = ie.Policy,
-                        Weight = ie.Weight,
-                        ServiceState = ie.State,
-                        ServiceType = ie.Type
-                    };
+                    var instance = ie.ToInstance();
                     _instanceCache.AddOrUpdate(se.ServiceName, Guid.NewGuid(), instance);
                 }
             }

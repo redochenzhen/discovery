@@ -13,7 +13,7 @@ using System.Text.Json;
 
 namespace Keep.Discovery.Internal
 {
-    public class InstanceQueryMiddleware
+    internal class InstanceQueryMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly InstanceCache _instanceCache;
@@ -37,18 +37,15 @@ namespace Keep.Discovery.Internal
                 return;
             }
             var mapping = _instanceCache.GetAll()
-                .Select(kv => new StaticServiceEntry
+                .Select(kv => new StaticInstanceEntry
                 {
                     ServiceName = kv.Key,
                     Instances = kv.Value.InstanceMap.Values
-                    .Select(si => new InstanceEntry
+                    .Select(si =>
                     {
-                        Host = si.HostName,
-                        Port = si.Port,
-                        Secure = si.IsSecure,
-                        State = si.ServiceState,
-                        Weight = si.Weight,
-                        Policy = si.BalancePolicy
+                        var entry = si.ToEntry();
+                        entry.Name = null;
+                        return entry;
                     })
                     .ToList()
                 })

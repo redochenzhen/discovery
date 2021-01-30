@@ -27,7 +27,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Keep.Discovery.Refit", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Keep.Discovery.ZooPicker", "src\Keep.Discovery.ZooPicker\Keep.Discovery.ZooPicker.csproj", "{C4872379-E44D-43D0-B678-CB5035611B8B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keep.Discovery.Tests", "tests\Keep.Discovery.Tests\Keep.Discovery.Tests.csproj", "{54C73784-6D81-4EAE-B559-8347F7BC309D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Keep.Discovery.Tests", "tests\Keep.Discovery.Tests\Keep.Discovery.Tests.csproj", "{54C73784-6D81-4EAE-B559-8347F7BC309D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{9EF5B781-0421-4ECC-8EB2-370F8C3134A8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,6 +91,7 @@ Global
 		{6688DEAA-ECC4-4637-A52B-682ACDE71767} = {048A8C4F-FC57-4470-B0B4-AAB63F01AB85}
 		{E8AD63EA-7A4F-4C3E-BDA1-046E5B689FED} = {DE54BFB7-7AA2-4844-9C02-6452278ED58B}
 		{C4872379-E44D-43D0-B678-CB5035611B8B} = {DE54BFB7-7AA2-4844-9C02-6452278ED58B}
+		{54C73784-6D81-4EAE-B559-8347F7BC309D} = {9EF5B781-0421-4ECC-8EB2-370F8C3134A8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A33B97CA-AE7D-466A-A208-EFA57DBE9B5C}
