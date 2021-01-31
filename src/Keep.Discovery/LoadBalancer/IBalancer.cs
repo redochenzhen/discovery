@@ -1,12 +1,9 @@
-﻿using Keep.Discovery.Contract;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
 
 namespace Keep.Discovery.LoadBalancer
 {
-    public interface IBalancer
+    internal interface IBalancer
     {
-        IServiceInstance Pick();
+        UpstreamPeer Pick();
     }
 }

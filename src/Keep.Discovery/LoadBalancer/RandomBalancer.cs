@@ -21,16 +21,19 @@ namespace Keep.Discovery.LoadBalancer
             Reset();
         }
 
-        public override IServiceInstance Pick()
+        public override UpstreamPeer Pick()
         {
-            if (_currentVer != CacheVer)
+            if (_currentVersion != CacheVersion)
             {
                 Reset();
             }
-            if (_peers == null || _peers.Count == 0) return null;
+            if (_peers == null || _peers.Count == 0)
+            {
+                return null;
+            }
             if (_peers.Count == 1 && _peers[0].State == ServiceState.Up)
             {
-                return _peers[0].Instance;
+                return _peers[0];
             }
 
             var peer = default(UpstreamPeer);
@@ -89,7 +92,7 @@ namespace Keep.Discovery.LoadBalancer
             cw.Remove(cw.Length - 3, 3);
             _logger?.LogDebug($"Current weight ranges: ({cw})");
 #endif
-            return best?.Instance;
+            return best;
         }
 
         protected override void Reset()
@@ -109,10 +112,10 @@ namespace Keep.Discovery.LoadBalancer
                 _peers.Add(peer);
                 pre = peer;
             }
-            _currentVer = CacheVer;
-            if (_currentVer != 0)
+            _currentVersion = CacheVersion;
+            if (_currentVersion != 0)
             {
-                _logger?.LogDebug($"Upstream peers reset due to cache vertion changing. (count: {_peers.Count}, version: {_currentVer})");
+                _logger?.LogDebug($"Upstream peers reset due to cache vertion changing. (count: {_peers.Count}, version: {_currentVersion})");
             }
         }
 

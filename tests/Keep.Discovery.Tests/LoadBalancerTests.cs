@@ -24,7 +24,7 @@ namespace Keep.Discovery.Tests
                 record.InstanceMap.TryAdd(Guid.NewGuid(), ins);
             }
             var balancer = new RoundRobinBalancer(null, record);
-            var ports = Enumerable.Range(0, 300).Select(_ => balancer.Pick().Port);
+            var ports = Enumerable.Range(0, 300).Select(_ => balancer.Pick().Instance.Port);
 
             {
                 var x80 = ports.Count(p => p == 80);
@@ -73,7 +73,7 @@ namespace Keep.Discovery.Tests
 
             var balancer = new RandomBalancer(null, record);
             {
-                ports = Enumerable.Range(0, 600).Select(_ => balancer.Pick().Port).ToList();
+                ports = Enumerable.Range(0, 600).Select(_ => balancer.Pick().Instance.Port).ToList();
                 var x80 = ports.Count(p => p == 80);
                 var x81 = ports.Count(p => p == 81);
                 var x82 = ports.Count(p => p == 82);
@@ -84,7 +84,7 @@ namespace Keep.Discovery.Tests
 
             (instances[0] as ServiceInstance).ServiceState = ServiceState.Down;
             {
-                ports = Enumerable.Range(0, 600).Select(_ => balancer.Pick().Port).ToList();
+                ports = Enumerable.Range(0, 600).Select(_ => balancer.Pick().Instance.Port).ToList();
                 var x80 = ports.Count(p => p == 80);
                 var x81 = ports.Count(p => p == 81);
                 var x82 = ports.Count(p => p == 82);
@@ -95,7 +95,7 @@ namespace Keep.Discovery.Tests
 
             (instances[0] as ServiceInstance).ServiceState = ServiceState.Up;
             {
-                ports = Enumerable.Range(0, 600).Select(_ => balancer.Pick().Port).ToList();
+                ports = Enumerable.Range(0, 600).Select(_ => balancer.Pick().Instance.Port).ToList();
                 var x80 = ports.Count(p => p == 80);
                 var x81 = ports.Count(p => p == 81);
                 var x82 = ports.Count(p => p == 82);
@@ -107,7 +107,7 @@ namespace Keep.Discovery.Tests
             (instances[0] as ServiceInstance).ServiceState = ServiceState.Down;
             (instances[1] as ServiceInstance).ServiceState = ServiceState.Down;
             {
-                ports = Enumerable.Range(0, 600).Select(_ => balancer.Pick().Port).ToList();
+                ports = Enumerable.Range(0, 600).Select(_ => balancer.Pick().Instance.Port).ToList();
                 var x80 = ports.Count(p => p == 80);
                 var x81 = ports.Count(p => p == 81);
                 var x82 = ports.Count(p => p == 82);

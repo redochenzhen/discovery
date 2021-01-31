@@ -22,6 +22,8 @@ namespace Keep.Discovery.Contract
                 ServiceType = instanceEntry.Type,
                 Weight = instanceEntry.Weight,
                 BalancePolicy = instanceEntry.Policy,
+                FailTimeout = instanceEntry.FailTimeout,
+                MaxFails = instanceEntry.MaxFails,
             };
         }
 
@@ -41,6 +43,8 @@ namespace Keep.Discovery.Contract
                 State = serviceInstance.ServiceState,
                 Weight = serviceInstance.Weight,
                 Policy = serviceInstance.BalancePolicy,
+                FailTimeout = serviceInstance.FailTimeout,
+                MaxFails = serviceInstance.MaxFails,
             };
         }
     }

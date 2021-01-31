@@ -27,6 +27,8 @@ namespace Keep.Discovery.ZooPicker
             public ServiceState ServiceState { get; set; } = ServiceState.Up;
             public ServiceType ServiceType { get; set; } = ServiceType.Rest;
             public BalancePolicy BalancePolicy { get; set; } = BalancePolicy.RoundRobin;
+            public int FailTimeout { get; set; } = 1000 * 10;
+            public int MaxFails { get; set; } = 1;
             public string IpAddress { get; set; }
             public bool PreferIpAddress { get; set; }
         }

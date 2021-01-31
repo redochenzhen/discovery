@@ -21,6 +21,10 @@ namespace Keep.Discovery.Contract
 
         int Weight { get; }
 
+        int MaxFails { get; }
+
+        int FailTimeout { get; }
+
         ServiceState ServiceState { get; }
 
         BalancePolicy BalancePolicy { get; }

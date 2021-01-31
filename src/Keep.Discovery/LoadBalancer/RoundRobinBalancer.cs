@@ -1,5 +1,6 @@
 ﻿using Keep.Discovery.Contract;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Linq;
 using System.Text;
 
@@ -12,16 +13,19 @@ namespace Keep.Discovery.LoadBalancer
             Reset();
         }
 
-        public override IServiceInstance Pick()
+        public override UpstreamPeer Pick()
         {
-            if (_currentVer != CacheVer)
+            if (_currentVersion != CacheVersion)
             {
                 Reset();
             }
-            if (_peers == null || _peers.Count == 0) return null;
+            if (_peers == null || _peers.Count == 0)
+            {
+                return null;
+            }
             if (_peers.Count == 1 && _peers[0].State == ServiceState.Up)
             {
-                return _peers[0].Instance;
+                return _peers[0];
             }
 
             var best = default(UpstreamPeer);
@@ -30,6 +34,8 @@ namespace Keep.Discovery.LoadBalancer
             foreach (var peer in _peers)
             {
                 if (peer.State == ServiceState.Down) continue;
+
+                if (peer.FreezedByFails) continue;
 
                 total += peer.EffectiveWeight;
                 peer.CurrentWeight += peer.EffectiveWeight;
@@ -48,13 +54,21 @@ namespace Keep.Discovery.LoadBalancer
                     peer.EffectiveWeight--;
                 }
             }
-            best.CurrentWeight -= total;
+            if (best != null)
+            {
+                best.CurrentWeight -= total;
+                var now = DateTime.Now;
+                if (now - best.Checked > best.FailTimeout)
+                {
+                    best.Checked = now;
+                }
+            }
 #if DEBUG
             var cw = _peers.Aggregate(new StringBuilder(), (a, c) => a.Append(c.CurrentWeight).Append(", "));
             cw.Remove(cw.Length - 2, 2);
             _logger?.LogDebug($"Current weights: ({cw})");
 #endif
-            return best?.Instance;
+            return best;
         }
 
         protected override void Reset()
@@ -67,10 +81,10 @@ namespace Keep.Discovery.LoadBalancer
                     CurrentWeight = 0,
                 })
                 .ToList();
-            _currentVer = CacheVer;
-            if (_currentVer != 0)
+            _currentVersion = CacheVersion;
+            if (_currentVersion != 0)
             {
-                _logger?.LogDebug($"Upstream peers reset due to cache vertion changing. (count: {_peers.Count}, version: {_currentVer})");
+                _logger?.LogDebug($"Upstream peers reset due to cache vertion changing. (count: {_peers.Count}, version: {_currentVersion})");
             }
         }
     }

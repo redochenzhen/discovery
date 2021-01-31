@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using Keep.Discovery.Contract;
+using Keep.Discovery.Http;
 using Keep.Discovery.Internal;
 using Keep.Discovery.LoadBalancer;
 using Microsoft.Extensions.Logging;
@@ -18,13 +17,16 @@ namespace Keep.Discovery.Pump
         private readonly CancellationTokenSource _cts;
         private readonly BufferBlock<HandlingContext> _requestBuffer;
         private readonly DiscoveryOptions _options;
-        private readonly IBalancerFactory _balancerFactory;
         private readonly ThreadLocal<Dictionary<string, IBalancer>> _balancers;
+        private readonly IBalancerFactory _balancerFactory;
+        private readonly HttpUpstreamHandler _handler;
+
 
         public Dispatcher(
             ILogger<Dispatcher> logger,
             IOptions<DiscoveryOptions> options,
-            IBalancerFactory balancerFactory)
+             IBalancerFactory balancerFactory,
+            HttpUpstreamHandler handler)
         {
             _cts = new CancellationTokenSource();
             var dbOption = new DataflowBlockOptions
@@ -35,8 +37,9 @@ namespace Keep.Discovery.Pump
 
             _logger = logger;
             _options = options.Value;
-            _balancerFactory = balancerFactory;
             _balancers = new ThreadLocal<Dictionary<string, IBalancer>>();
+            _balancerFactory = balancerFactory;
+            _handler = handler;
         }
 
 
@@ -66,54 +69,21 @@ namespace Keep.Discovery.Pump
             while (_requestBuffer.OutputAvailableAsync(_cts.Token).Result)
             {
                 var ctx = _requestBuffer.ReceiveAsync().Result;
-                var tcs = ctx.ResponsSource;
-                var request = ctx.Request;
-                var current = request.RequestUri;
-                string originalScheme = current.Scheme;
-                string serviceName = current.Host;
-                try
+                string serviceName = ctx.Request.RequestUri.Host;
+
+                var balancerMap = _balancers.Value;
+                if (balancerMap == null)
                 {
-                    var balancerMap = _balancers.Value;
-                    if (balancerMap == null)
-                    {
-                        balancerMap = new Dictionary<string, IBalancer>();
-                        _balancers.Value = balancerMap;
-                    }
-
-                    if (!balancerMap.TryGetValue(serviceName, out var balancer))
-                    {
-                        balancer = _balancerFactory.CreateBalancer(serviceName);
-                        balancerMap.Add(serviceName, balancer);
-                    }
-
-                    var instance = balancer.Pick();
-                    var uri = instance?.Uri;
-                    if (uri != null)
-                    {
-                        request.RequestUri = new Uri(uri, current.PathAndQuery);
-                    }
-                    Task.Run(async () =>
-                    {
-                        try
-                        {
-                            var response = await ctx.HandleAsync(request, ctx.CancellationToken);
-                            tcs.TrySetResult(response);
-                        }
-                        catch (Exception ex)
-                        {
-                            tcs.TrySetException(ex);
-                        }
-                        finally
-                        {
-                            request.RequestUri = current;
-                        }
-                    });
+                    balancerMap = new Dictionary<string, IBalancer>();
+                    _balancers.Value = balancerMap;
                 }
-                catch (Exception ex)
+                if (!balancerMap.TryGetValue(serviceName, out var balancer))
                 {
-                    tcs.TrySetException(ex.InnerException ?? ex);
+                    balancer = _balancerFactory.CreateBalancer(serviceName);
+                    balancerMap.Add(serviceName, balancer);
                 }
-
+                var peer = balancer.Pick();
+                _handler.Handle(ctx, peer);
             }
         }
 

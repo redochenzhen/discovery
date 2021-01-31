@@ -1,9 +1,6 @@
-﻿using Keep.Discovery.Contract;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Keep.Discovery.LoadBalancer
 {
@@ -12,8 +9,8 @@ namespace Keep.Discovery.LoadBalancer
         protected readonly ILogger _logger;
         protected InstanceCacheRecord _record;
         protected IList<UpstreamPeer> _peers;
-        protected int _currentVer = 0;
-        protected int CacheVer => _record.Version;
+        protected int _currentVersion = 0;
+        protected int CacheVersion => _record.Version;
 
         public BalancerBase(ILogger logger, InstanceCacheRecord record)
         {
@@ -21,7 +18,7 @@ namespace Keep.Discovery.LoadBalancer
             _record = record ?? throw new ArgumentNullException(nameof(record));
         }
 
-        public abstract IServiceInstance Pick();
+        public abstract UpstreamPeer Pick();
 
         protected abstract void Reset();
     }

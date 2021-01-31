@@ -49,6 +49,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.Configure(configure);
             services.AddTransient<DiscoveryHttpMessageHandler>();
             services.AddSingleton<InstanceCache>();
+            services.AddSingleton<HttpUpstreamHandler>();
             services.AddSingleton<IDispatcher, Dispatcher>();
             services.AddSingleton<IBalancerFactory, BalancerFactory>();
 

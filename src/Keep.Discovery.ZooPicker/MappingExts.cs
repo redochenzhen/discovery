@@ -20,6 +20,8 @@ namespace Keep.Discovery.ZooPicker
                 Secure = instanceOpts.IsSecure,
                 Weight = instanceOpts.Weight,
                 Policy = instanceOpts.BalancePolicy,
+                FailTimeout = instanceOpts.FailTimeout,
+                MaxFails = instanceOpts.MaxFails,
             };
         }
 

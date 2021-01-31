@@ -32,6 +32,10 @@ namespace Keep.Discovery.Contract
 
         public BalancePolicy BalancePolicy { get; set; } = BalancePolicy.RoundRobin;
 
+        public int MaxFails { get; set; }
+
+        public int FailTimeout { get; set; }
+
         public ServiceInstance(string hostName, int port, bool isSecure = false)
         {
             HostName = hostName;

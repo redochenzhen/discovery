@@ -26,5 +26,9 @@ namespace Keep.Discovery.Contract
         public bool Secure { get; set; }
 
         public int Weight { get; set; } = 1;
+
+        public int FailTimeout { get; set; } = 1000 * 10;
+
+        public int MaxFails { get; set; } = 1;
     }
 }
