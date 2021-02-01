@@ -25,7 +25,7 @@ namespace Keep.Discovery.Pump
         public Dispatcher(
             ILogger<Dispatcher> logger,
             IOptions<DiscoveryOptions> options,
-             IBalancerFactory balancerFactory,
+            IBalancerFactory balancerFactory,
             HttpUpstreamHandler handler)
         {
             _cts = new CancellationTokenSource();

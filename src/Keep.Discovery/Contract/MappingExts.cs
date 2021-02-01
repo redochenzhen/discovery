@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Keep.Discovery.LoadBalancer;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -27,7 +28,7 @@ namespace Keep.Discovery.Contract
             };
         }
 
-        public static InstanceEntry ToEntry(this IServiceInstance serviceInstance)
+        internal static InstanceEntry ToEntry(this IServiceInstance serviceInstance)
         {
             if (serviceInstance == null)
             {

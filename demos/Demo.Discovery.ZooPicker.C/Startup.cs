@@ -40,8 +40,8 @@ namespace Demo.Discovery.ZooPicker.C
                 //.ConfigureHttpClient(c => c.BaseAddress = new Uri("http://testapi"));
                 .AddDiscoveryRefitClient<ITestApi>()
                 .ConfigureHttpClient(c =>
-                { 
-                    c.BaseAddress = new Uri("http://testapi"); 
+                {
+                    c.BaseAddress = new Uri("http://testapi");
                 });
 
             services.AddControllers();

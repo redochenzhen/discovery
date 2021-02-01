@@ -35,6 +35,8 @@ namespace Keep.Discovery.LoadBalancer
             {
                 if (peer.State == ServiceState.Down) continue;
 
+                //请求第一次失败时，可能已经有多个请求使用了相同的peer，导致多个请求失败；
+                //每当FailTimeout到期时，该peer仅会放行一次，导致一个请求失败（如果该peer还没恢复的话）
                 if (peer.FreezedByFails) continue;
 
                 total += peer.EffectiveWeight;
@@ -57,6 +59,7 @@ namespace Keep.Discovery.LoadBalancer
             if (best != null)
             {
                 best.CurrentWeight -= total;
+                //这里的now比FreezedByFails内使用的now略大，可保持“>”的关系，不至于乱了check的节奏
                 var now = DateTime.Now;
                 if (now - best.Checked > best.FailTimeout)
                 {
@@ -74,11 +77,12 @@ namespace Keep.Discovery.LoadBalancer
         protected override void Reset()
         {
             _peers = _record.InstanceMap.Values
-                .Select(ins => new UpstreamPeer
+                .Select(si => new UpstreamPeer
                 {
-                    Instance = ins,
-                    EffectiveWeight = ins.Weight,
+                    Instance = si,
+                    EffectiveWeight = si.Weight,
                     CurrentWeight = 0,
+                    Fails = 0,
                 })
                 .ToList();
             _currentVersion = CacheVersion;
