@@ -1,8 +1,4 @@
-﻿using Keep.Discovery.LoadBalancer;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Keep.Discovery.Contract
 {
@@ -23,12 +19,19 @@ namespace Keep.Discovery.Contract
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public BalancePolicy Policy { get; set; } = BalancePolicy.RoundRobin;
 
-        public bool Secure { get; set; }
+        public bool Secure { get; set; } = false;
 
         public int Weight { get; set; } = 1;
 
         public int FailTimeout { get; set; } = 1000 * 10;
 
         public int MaxFails { get; set; } = 1;
+
+        public int NextTries { get; set; } = 0;
+
+        public int NextTimeout { get; set; } = 0;
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public NextWhen NextWhen { get; set; } = NextWhen.Error | NextWhen.Timeout;
     }
 }

@@ -22,6 +22,9 @@ namespace Keep.Discovery.ZooPicker
                 Policy = instanceOpts.BalancePolicy,
                 FailTimeout = instanceOpts.FailTimeout,
                 MaxFails = instanceOpts.MaxFails,
+                NextWhen = instanceOpts.Next.When,
+                NextTries = instanceOpts.Next.Tries,
+                NextTimeout = instanceOpts.Next.Timeout,
             };
         }
 

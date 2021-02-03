@@ -14,5 +14,7 @@ namespace Keep.Discovery
         public int WorkerThreads { get; set; } = Environment.ProcessorCount;
 
         public string PathMatch { get; set; } = "/discovery";
+
+        public int DefaultRequestTimeout { get; set; } = 1000 * 100;
     }
 }

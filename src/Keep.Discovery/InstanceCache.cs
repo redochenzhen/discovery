@@ -1,11 +1,9 @@
 ﻿using Keep.Discovery.Contract;
-using Keep.Discovery.LoadBalancer;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace Keep.Discovery

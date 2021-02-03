@@ -6,6 +6,8 @@ namespace Keep.Discovery.Contract
 {
     public enum ServiceState
     {
-        Up, Down
+        Up,
+        Down,
+        //Backup
     }
 }

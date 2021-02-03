@@ -1,9 +1,5 @@
-﻿using Keep.Discovery.Contract;
-using Keep.Discovery.LoadBalancer;
-using System;
+﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Keep.Discovery.Contract
 {
@@ -28,6 +24,12 @@ namespace Keep.Discovery.Contract
         ServiceState ServiceState { get; }
 
         BalancePolicy BalancePolicy { get; }
+
+        int NextTries { get; }
+
+        int NextTimeout { get; }
+
+        NextWhen NextWhen { get; }
 
         Uri Uri { get; }
 

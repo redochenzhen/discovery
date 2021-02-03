@@ -1,7 +1,4 @@
-﻿using Keep.Discovery.LoadBalancer;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
 
 namespace Keep.Discovery.Contract
 {
@@ -25,6 +22,9 @@ namespace Keep.Discovery.Contract
                 BalancePolicy = instanceEntry.Policy,
                 FailTimeout = instanceEntry.FailTimeout,
                 MaxFails = instanceEntry.MaxFails,
+                NextWhen = instanceEntry.NextWhen,
+                NextTries = instanceEntry.NextTries,
+                NextTimeout = instanceEntry.NextTimeout,
             };
         }
 
@@ -46,6 +46,9 @@ namespace Keep.Discovery.Contract
                 Policy = serviceInstance.BalancePolicy,
                 FailTimeout = serviceInstance.FailTimeout,
                 MaxFails = serviceInstance.MaxFails,
+                NextWhen = serviceInstance.NextWhen,
+                NextTries = serviceInstance.NextTries,
+                NextTimeout = serviceInstance.NextTimeout,
             };
         }
     }

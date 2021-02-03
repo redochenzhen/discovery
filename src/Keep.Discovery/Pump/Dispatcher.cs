@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,6 +41,7 @@ namespace Keep.Discovery.Pump
             _balancers = new ThreadLocal<Dictionary<string, IBalancer>>();
             _balancerFactory = balancerFactory;
             _handler = handler;
+            handler.SetDispatcher(this);
         }
 
 
@@ -82,7 +84,12 @@ namespace Keep.Discovery.Pump
                     balancer = _balancerFactory.CreateBalancer(serviceName);
                     balancerMap.Add(serviceName, balancer);
                 }
+                //如果这是一个重试请求，上下文会携带tried标记，避开已经尝试过的peer
+                balancer.TriedMark = ctx.TriedMark ?? new BitArray(balancer.PeersCount);
                 var peer = balancer.Pick();
+                ctx.TriedMark = balancer.TriedMark;
+                ctx.PeersCount = balancer.PeersCount;
+                ctx.PeersVersion = balancer.PeersVersion;
                 _handler.Handle(ctx, peer);
             }
         }

@@ -17,17 +17,18 @@ namespace Demo.Discovery.ZooPicker.C.Controllers
         private readonly ITestClient _testClient;
         private readonly ITestApi _testApi;
 
-        public ClientController(ILogger<ClientController> logger, ITestApi _api)
+        public ClientController(ILogger<ClientController> logger, ITestClient client, ITestApi api)
         {
             _logger = logger;
-            //_testClient = client;
-            _testApi = _api;
+            _testClient = client;
+            _testApi = api;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var x = await _testApi.GetAsync();
+            var x = await _testClient.GetValueAsync();
+            //var x = await _testApi.GetAsync();
             return Ok(x);
         }
 

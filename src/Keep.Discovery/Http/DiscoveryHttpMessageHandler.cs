@@ -1,14 +1,11 @@
-﻿using Keep.Discovery.Internal;
-using Keep.Discovery.LoadBalancer;
+﻿using Keep.Common.Http;
+using Keep.Discovery.Internal;
 using Keep.Discovery.Pump;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Keep.Discovery.Http
 {
-    internal class DiscoveryHttpMessageHandler : DelegatingHandler
+    internal class DiscoveryHttpMessageHandler : TimeoutHandler
     {
         private readonly ILogger _logger;
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
@@ -16,5 +17,17 @@ namespace Keep.Discovery.Internal
         public HttpRequestMessage Request { get; set; }
 
         public Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> HandleAsync;
+
+        //-------------------------------------
+
+        public int? Tries { get; set; }
+
+        public DateTime? Start { get; set; }
+
+        public BitArray TriedMark { get; set; }
+
+        public int PeersVersion { get; set; }
+
+        public int PeersCount { get; set; }
     }
 }

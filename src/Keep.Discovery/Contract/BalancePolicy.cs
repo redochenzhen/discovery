@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Keep.Discovery.LoadBalancer
+namespace Keep.Discovery.Contract
 {
     public enum BalancePolicy
     {

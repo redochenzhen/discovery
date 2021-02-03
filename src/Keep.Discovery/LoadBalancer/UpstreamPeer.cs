@@ -6,6 +6,7 @@ namespace Keep.Discovery.LoadBalancer
     internal class UpstreamPeer
     {
         private TimeSpan _failTimeout = default;
+        private TimeSpan _nextTimeout = default;
 
         public IServiceInstance Instance { get; set; }
         public int EffectiveWeight { get; set; }
@@ -30,6 +31,22 @@ namespace Keep.Discovery.LoadBalancer
         public int Fails { get; set; }
 
         public int Connections { get; set; }
+
+        public NextWhen NextWhen => Instance?.NextWhen ?? NextWhen.None;
+
+        public int NextTries => Instance?.NextTries ?? 0;
+
+        public TimeSpan NextTimeout
+        {
+            get
+            {
+                if (_nextTimeout == default)
+                {
+                    _nextTimeout = TimeSpan.FromMilliseconds(Instance?.NextTimeout ?? 0);
+                }
+                return _nextTimeout;
+            }
+        }
 
         public bool FreezedByFails => MaxFails != 0 && Fails >= MaxFails && DateTime.Now - Checked <= FailTimeout;
     }

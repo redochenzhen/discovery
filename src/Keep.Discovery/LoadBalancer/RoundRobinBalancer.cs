@@ -1,6 +1,7 @@
 ﻿using Keep.Discovery.Contract;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections;
 using System.Linq;
 using System.Text;
 
@@ -10,12 +11,12 @@ namespace Keep.Discovery.LoadBalancer
     {
         public RoundRobinBalancer(ILogger logger, InstanceCacheRecord record) : base(logger, record)
         {
-            Reset();
+            Reset(true);
         }
 
         public override UpstreamPeer Pick()
         {
-            if (_currentVersion != CacheVersion)
+            if (PeersVersion != CacheVersion)
             {
                 Reset();
             }
@@ -29,11 +30,16 @@ namespace Keep.Discovery.LoadBalancer
             }
 
             var best = default(UpstreamPeer);
+            int bestIdx = 0;
             int total = 0;
 
-            foreach (var peer in _peers)
+            for (int i = 0; i < _peers.Count; i++)
             {
+                var peer = _peers[i];
+
                 if (peer.State == ServiceState.Down) continue;
+
+                if (TriedMark.Get(i)) continue;
 
                 //请求第一次失败时，可能已经有多个请求使用了相同的peer，导致多个请求失败；
                 //每当FailTimeout到期时，该peer仅会放行一次，导致一个请求失败（如果该peer还没恢复的话）
@@ -45,6 +51,7 @@ namespace Keep.Discovery.LoadBalancer
                 if (best == null || best.CurrentWeight < peer.CurrentWeight)
                 {
                     best = peer;
+                    bestIdx = i;
                 }
 
                 if (peer.EffectiveWeight < peer.Weight)
@@ -58,6 +65,7 @@ namespace Keep.Discovery.LoadBalancer
             }
             if (best != null)
             {
+                TriedMark.Set(bestIdx, true);
                 best.CurrentWeight -= total;
                 //这里的now比FreezedByFails内使用的now略大，可保持“>”的关系，不至于乱了check的节奏
                 var now = DateTime.Now;
@@ -74,7 +82,7 @@ namespace Keep.Discovery.LoadBalancer
             return best;
         }
 
-        protected override void Reset()
+        protected override void Reset(bool init = false)
         {
             _peers = _record.InstanceMap.Values
                 .Select(si => new UpstreamPeer
@@ -85,10 +93,14 @@ namespace Keep.Discovery.LoadBalancer
                     Fails = 0,
                 })
                 .ToList();
-            _currentVersion = CacheVersion;
-            if (_currentVersion != 0)
+            if (!init)
             {
-                _logger?.LogDebug($"Upstream peers reset due to cache vertion changing. (count: {_peers.Count}, version: {_currentVersion})");
+                TriedMark = new BitArray(TriedMark.Length);
+            }
+            PeersVersion = CacheVersion;
+            if (PeersVersion != 0)
+            {
+                _logger?.LogDebug($"Upstream peers reset due to cache vertion changing. (count: {_peers.Count}, version: {PeersVersion})");
             }
         }
     }

@@ -14,7 +14,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Text;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -44,10 +43,14 @@ namespace Microsoft.Extensions.DependencyInjection
             var options = sp.GetService<IOptions<DiscoveryOptions>>().Value;
             configure(options);
 
-
             options.Plugins.ForEach(plugin => plugin.Register(services));
             services.Configure(configure);
-            services.AddTransient<DiscoveryHttpMessageHandler>();
+            services.AddTransient(p =>
+            {
+                var handler = ActivatorUtilities.CreateInstance<DiscoveryHttpMessageHandler>(p);
+                handler.DefaultTimeout = TimeSpan.FromMilliseconds(options.DefaultRequestTimeout);
+                return handler;
+            });
             services.AddSingleton<InstanceCache>();
             services.AddSingleton<HttpUpstreamHandler>();
             services.AddSingleton<IDispatcher, Dispatcher>();

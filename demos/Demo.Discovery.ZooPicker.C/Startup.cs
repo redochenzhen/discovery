@@ -36,8 +36,16 @@ namespace Demo.Discovery.ZooPicker.C
                     options.UseStaticMapping();
 #endif
                 })
-                //.AddDiscoveryHttpClient<ITestClient, TestClient>()
-                //.ConfigureHttpClient(c => c.BaseAddress = new Uri("http://testapi"));
+                .AddDiscoveryHttpClient<ITestClient, TestClient>()
+                .ConfigureHttpMessageHandlerBuilder(builder =>
+                {
+                    builder.SetDefaultTimeout(3000);
+                })
+                .ConfigureHttpClient(c =>
+                {
+                    c.BaseAddress = new Uri("http://testapi");
+                });
+            services
                 .AddDiscoveryRefitClient<ITestApi>()
                 .ConfigureHttpClient(c =>
                 {

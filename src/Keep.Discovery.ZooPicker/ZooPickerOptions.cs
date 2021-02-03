@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Keep.Common;
-using Keep.Discovery.Contract;
-using Keep.Discovery.LoadBalancer;
+﻿using Keep.Discovery.Contract;
 
 namespace Keep.Discovery.ZooPicker
 {
@@ -16,7 +11,7 @@ namespace Keep.Discovery.ZooPicker
         public int ConnectionTimeout { get; set; } = 1000 * 20;
         public string GroupName { get; set; } = "Default";
 
-        public InstanceOptions Instance { get; set; }
+        public InstanceOptions Instance { get; set; } = new InstanceOptions();
 
         public class InstanceOptions
         {
@@ -30,7 +25,18 @@ namespace Keep.Discovery.ZooPicker
             public int FailTimeout { get; set; } = 1000 * 10;
             public int MaxFails { get; set; } = 1;
             public string IpAddress { get; set; }
-            public bool PreferIpAddress { get; set; }
+            public bool PreferIpAddress { get; set; } = true;
+
+            public NextOptions Next { get; set; } = new NextOptions();
+        }
+
+        public class NextOptions
+        {
+            public int Tries { get; set; } = 0;
+
+            public int Timeout { get; set; } = 0;
+
+            public NextWhen When { get; set; } = NextWhen.Error | NextWhen.Timeout;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Keep.Discovery.Contract;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -18,12 +19,12 @@ namespace Keep.Discovery.LoadBalancer
         public RandomBalancer(ILogger<RandomBalancer> logger, InstanceCacheRecord record) : base(logger, record)
         {
             _random = new Random();
-            Reset();
+            Reset(true);
         }
 
         public override UpstreamPeer Pick()
         {
-            if (_currentVersion != CacheVersion)
+            if (PeersVersion != CacheVersion)
             {
                 Reset();
             }
@@ -95,7 +96,7 @@ namespace Keep.Discovery.LoadBalancer
             return best;
         }
 
-        protected override void Reset()
+        protected override void Reset(bool init = false)
         {
             var instances = _record.InstanceMap.Values.ToList();
             int count = instances.Count;
@@ -112,10 +113,14 @@ namespace Keep.Discovery.LoadBalancer
                 _peers.Add(peer);
                 pre = peer;
             }
-            _currentVersion = CacheVersion;
-            if (_currentVersion != 0)
+            if (!init)
             {
-                _logger?.LogDebug($"Upstream peers reset due to cache vertion changing. (count: {_peers.Count}, version: {_currentVersion})");
+                TriedMark = new BitArray(TriedMark.Length);
+            }
+            PeersVersion = CacheVersion;
+            if (PeersVersion != 0)
+            {
+                _logger?.LogDebug($"Upstream peers reset due to cache vertion changing. (count: {_peers.Count}, version: {PeersVersion})");
             }
         }
 

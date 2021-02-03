@@ -11,7 +11,8 @@
   "profiles": {
     "Demo.Discovery.ZooPicker.C": {
       "commandName": "Project",
-      "launchUrl": "client/users/1",
+      "launchBrowser": true,
+      "launchUrl": "client",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

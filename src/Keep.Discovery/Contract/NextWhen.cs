@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Keep.Discovery.Http
+namespace Keep.Discovery.Contract
 {
     [Flags]
-    internal enum TryNextWhen
+    public enum NextWhen
     {
-        Never = 0,
+        None = 0,
+        Never = 1,
 
-        Error = 0x0001,
-        Timeout = 0x0002,
-        InvalidHeader = 0x0004,
+        Error = 0x0002,
+        Timeout = 0x0004,
+        InvalidHeader = 0x0008,
 
         Http500 = 0x0010,
         Http502 = 0x0020,
@@ -21,5 +22,6 @@ namespace Keep.Discovery.Http
         Http404 = 0x0100,
 
         NonIdemponent = 0x1000,
+        GetOnly = 0x200,
     }
 }

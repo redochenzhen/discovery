@@ -1,13 +1,9 @@
-﻿using Keep.Discovery.Contract;
-using Keep.Discovery.LoadBalancer;
-using System;
+﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Keep.Discovery.Contract
 {
-    public class ServiceInstance : IServiceInstance
+    internal class ServiceInstance : IServiceInstance
     {
         public string ServiceName { get; set; }
 
@@ -35,6 +31,12 @@ namespace Keep.Discovery.Contract
         public int MaxFails { get; set; }
 
         public int FailTimeout { get; set; }
+
+        public int NextTries { get; set; } 
+
+        public int NextTimeout { get; set; }
+
+        public NextWhen NextWhen { get; set; }
 
         public ServiceInstance(string hostName, int port, bool isSecure = false)
         {
