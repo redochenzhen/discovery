@@ -12,6 +12,10 @@ namespace Keep.Discovery.LoadBalancer
         protected IList<UpstreamPeer> _peers;
         public int PeersVersion { get; protected set; } = 0;
         public int PeersCount => _peers?.Count ?? 0;
+
+        /// <summary>
+        /// 实例版本号（比如网络抖动导致服务实例上下线将会导致该版本号递增）
+        /// </summary>
         protected int CacheVersion => _record.Version;
 
         protected BitArray _triedMark;

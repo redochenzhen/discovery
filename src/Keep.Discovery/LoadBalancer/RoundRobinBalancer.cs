@@ -7,6 +7,9 @@ using System.Text;
 
 namespace Keep.Discovery.LoadBalancer
 {
+    /// <summary>
+    /// 带权重的平滑轮训负载均衡器
+    /// </summary>
     internal class RoundRobinBalancer : BalancerBase
     {
         public RoundRobinBalancer(ILogger logger, InstanceCacheRecord record) : base(logger, record)
@@ -95,13 +98,16 @@ namespace Keep.Discovery.LoadBalancer
                 .ToList();
             if (!init)
             {
+                //上游服务端版本号变动，可能引起“已尝试“标记失效（基于索引）
                 TriedMark = new BitArray(TriedMark.Length);
             }
             PeersVersion = CacheVersion;
+#if DEBUG
             if (PeersVersion != 0)
             {
                 _logger?.LogDebug($"Upstream peers reset due to cache vertion changing. (count: {_peers.Count}, version: {PeersVersion})");
             }
+#endif
         }
     }
 }

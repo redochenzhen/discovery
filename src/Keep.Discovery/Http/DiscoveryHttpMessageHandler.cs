@@ -16,17 +16,13 @@ namespace Keep.Discovery.Http
     internal class DiscoveryHttpMessageHandler : TimeoutHandler
     {
         private readonly ILogger _logger;
-
-        private readonly DiscoveryOptions _options;
         private readonly IDispatcher _dispather;
 
         public DiscoveryHttpMessageHandler(
             ILogger<DiscoveryHttpMessageHandler> logger,
-            IOptions<DiscoveryOptions> options,
             IDispatcher dispather)
         {
             _logger = logger;
-            _options = options.Value;
             _dispather = dispather;
         }
 
@@ -40,7 +36,15 @@ namespace Keep.Discovery.Http
                 ResponsSource = new TaskCompletionSource<HttpResponseMessage>(cancellationToken),
                 CancellationToken = cancellationToken
             };
-            await _dispather.AcceptThenDispatchAsync(ctx);
+            try
+            {
+                await _dispather.AcceptThenDispatchAsync(ctx);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                ctx.ResponsSource.SetException(ex);
+            }
             return await ctx.ResponsSource.Task;
         }
     }

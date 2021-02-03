@@ -39,7 +39,7 @@ namespace Demo.Discovery.ZooPicker.C
                 .AddDiscoveryHttpClient<ITestClient, TestClient>()
                 .ConfigureHttpMessageHandlerBuilder(builder =>
                 {
-                    builder.SetDefaultTimeout(3000);
+                    builder.SetDefaultTimeout(1000);
                 })
                 .ConfigureHttpClient(c =>
                 {

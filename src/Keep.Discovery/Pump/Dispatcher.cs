@@ -88,7 +88,6 @@ namespace Keep.Discovery.Pump
                 balancer.TriedMark = ctx.TriedMark ?? new BitArray(balancer.PeersCount);
                 var peer = balancer.Pick();
                 ctx.TriedMark = balancer.TriedMark;
-                ctx.PeersCount = balancer.PeersCount;
                 ctx.PeersVersion = balancer.PeersVersion;
                 _handler.Handle(ctx, peer);
             }

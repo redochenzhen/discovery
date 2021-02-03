@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
@@ -13,13 +11,13 @@ using System.Text.Json;
 
 namespace Keep.Discovery.Internal
 {
-    internal class InstanceQueryMiddleware
+    internal class InstancesQueryMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly InstanceCache _instanceCache;
         private readonly DiscoveryOptions _options;
 
-        public InstanceQueryMiddleware(
+        public InstancesQueryMiddleware(
             RequestDelegate next,
             IOptions<DiscoveryOptions> discoveryOptions,
             InstanceCache instanceRegistry)
@@ -74,7 +72,7 @@ namespace Keep.Discovery.Internal
                 var discoveryOptions = sp.GetService<IOptions<DiscoveryOptions>>();
                 if (discoveryOptions?.Value.ShouldDiscover ?? false)
                 {
-                    app.UseMiddleware<InstanceQueryMiddleware>();
+                    app.UseMiddleware<InstancesQueryMiddleware>();
                 }
                 next(app);
             };

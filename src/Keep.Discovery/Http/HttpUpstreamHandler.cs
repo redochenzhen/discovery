@@ -46,6 +46,10 @@ namespace Keep.Discovery.Http
                     if (uri != null)
                     {
                         request.RequestUri = new Uri(uri, originalUri.PathAndQuery);
+                        lock (peer)
+                        {
+                            peer.Connections++;
+                        }
                     }
                     var ct = context.CancellationToken;
                     response = await context.HandleAsync(request, ct);
@@ -86,6 +90,7 @@ namespace Keep.Discovery.Http
             });
         }
 
+        /// <returns>是否尝试了“下一个”上游服务端</returns>
         private async Task<bool> NextPeerAsync(
             HandlingContext context,
             UpstreamPeer peer,
@@ -94,9 +99,11 @@ namespace Keep.Discovery.Http
             bool isTimeout = false)
         {
             if (peer == null) return false;
-            if (NextWhen.Never == (peer.NextWhen & NextWhen.Never)) return false;
+            if (context.IsSingle) return false;
 
             context.Start = context.Start ?? DateTime.Now;
+
+            if (NextWhen.Never == (peer.NextWhen & NextWhen.Never)) return false;
 
             var request = context.Request;
             if (request.Method != HttpMethod.Get &&
@@ -175,7 +182,7 @@ namespace Keep.Discovery.Http
             HttpResponseMessage response)
         {
             if (peer == null) return;
-            if (context.PeersCount == 1) return;
+            if (context.IsSingle) return;
 
             PeerState state = PeerState.Successful;
             if (response == null)
@@ -199,7 +206,7 @@ namespace Keep.Discovery.Http
             }
             lock (peer)
             {
-                //peer.Connections--;
+                peer.Connections--;
                 if (state == PeerState.Successful)
                 {
                     peer.Fails = 0;
