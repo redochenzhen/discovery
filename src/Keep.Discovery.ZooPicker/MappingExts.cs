@@ -11,20 +11,25 @@ namespace Keep.Discovery.ZooPicker
             {
                 throw new ArgumentNullException(nameof(instanceOpts));
             }
+            int port = instanceOpts.Port;
+            if (port == 0)
+            {
+                port = instanceOpts.Secure ? 443 : 80;
+            }
             return new InstanceEntry
             {
-                Name = instanceOpts.ServiceName,
-                Port = instanceOpts.Port,
-                Type = instanceOpts.ServiceType,
-                State = instanceOpts.ServiceState,
-                Secure = instanceOpts.IsSecure,
+                ServiceName = instanceOpts.ServiceName,
+                Port = port,
+                Type = instanceOpts.Type,
+                State = instanceOpts.State,
+                Secure = instanceOpts.Secure,
                 Weight = instanceOpts.Weight,
-                Policy = instanceOpts.BalancePolicy,
+                Balancing = instanceOpts.BalancePolicy,
                 FailTimeout = instanceOpts.FailTimeout,
                 MaxFails = instanceOpts.MaxFails,
-                NextWhen = instanceOpts.Next.When,
-                NextTries = instanceOpts.Next.Tries,
-                NextTimeout = instanceOpts.Next.Timeout,
+                NextWhen = instanceOpts.NextWhen,
+                NextTries = instanceOpts.NextTries,
+                NextTimeout = instanceOpts.NextTimeout,
             };
         }
 

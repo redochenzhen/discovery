@@ -1,23 +1,34 @@
-# **Keep Discovery**
+# **Keep.Discovery**
 
 ## 简介
-### [注意：*preview*版本，不要用于生产环境]
-
 [Keep Discovery](http://gitlab.kede.net/technologyplatform/discovery)是基于asp.net core平台的服务发现框架。目前具有以下特性和限制：
 
-#### 特性：
+### 特性
 1. 基于抽象实现，方便扩展支持其他热门服务发现组件，如Consul, Eureka等
 2. 拥有可靠的容灾能力
 3. 对开发完全透明，请求由标准的HttpClient完成
 4. 内置了“静态发现”功能，方便本地调试
 5. 可与Refit集成，只需申明接口，自动成成Client代码
 
-#### 限制（暂时）：
+### 同步Submodule
+git clone http://gitlab.kede.net/technologyplatform/discovery.git<br />
+cd discovery<br />
+git submodule update --init<br />
+
+### 文档
+[内部文档](http://docs.kede.net/discovery/)
+构建文档<br />
+下载[docfx](https://github.com/dotnet/docfx/releases)<br />
+将docfx.exe所在路径添加到path环境变量<br />
+在项目根目录执行：<br />
+docfx<br />
+docfx serve _site<br />
+
+### 限制（暂时）：
 1. 只支持Restful Api (http协议)，不支持WCF, gRPC等rpc协议
-2. 内置的负载均衡功能不完善
+2. 只支持基于ZooKeeper实现的ZooPicker服务发现组件
 
 ## 快速开始
-
 ### NuGet
 ```
 dotnet add package Keep.Discovery
@@ -52,18 +63,28 @@ public void ConfigureServices(IServiceCollection services)
     "ShouldRegister": true,
 
     "ZooPicker": {
-      "ConnectionString": "192.168.117.52:2181/services",
+      "ConnectionString": "127.0.0.1:2181/services",
       "SessionTimeout": 4000,
       "ConnectionTimeout": 3000,
       "GroupName": "yourgroup",
       //"Password": "123456",
 
       "Instance": {
-        "ServiceName": "yourservicename",
-        "Port": 5000,
-        "State": "Up", //Down
-        "IpAddress": "localhost",
-        "PreferIpAddress": true
+        "ServiceName": "testapi",
+        "Type": "Rest",
+        "Port": 5003,
+        "Balancing": "RoundRobin",
+        "IpAddress": "127.0.0.1",
+        "PreferIpAddress": true,
+
+        "Weight": 1,
+        "State": "Up",
+
+        "FailTimeout": 10000,
+        "MaxFails": 1,
+        "NextWhen": "Error,Timeout",
+        "NextTries": 0,
+        "NextTimeout": 0
       }
     }
   }
@@ -163,3 +184,4 @@ public interface ITestRefitClient
 ```
 
 就这么简单，Refit将自动帮你生成请求代码，并注入到容器中。
+

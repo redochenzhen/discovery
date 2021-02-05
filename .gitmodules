@@ -1,4 +1,4 @@
 [submodule "ref/keep"]
 	path = ref/keep
-	url = git@gitlab.kede.net:technologyplatform/keep.git
+	url = ../keep.git
 	branch = master

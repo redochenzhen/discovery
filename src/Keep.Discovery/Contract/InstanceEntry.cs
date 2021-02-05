@@ -4,22 +4,22 @@ namespace Keep.Discovery.Contract
 {
     public class InstanceEntry
     {
+        public string ServiceName { get; set; }
+
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public ServiceType Type { get; set; } = ServiceType.Rest;
 
-        public string Name { get; set; }
-
-        public string Host { get; set; }
+        public string HostName { get; set; }
 
         public int Port { get; set; }
+
+        public bool Secure { get; set; } = false;
 
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public ServiceState State { get; set; } = ServiceState.Up;
 
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public BalancePolicy Policy { get; set; } = BalancePolicy.RoundRobin;
-
-        public bool Secure { get; set; } = false;
+        public BalancePolicy Balancing { get; set; } = BalancePolicy.RoundRobin;
 
         public int Weight { get; set; } = 1;
 
@@ -27,11 +27,11 @@ namespace Keep.Discovery.Contract
 
         public int MaxFails { get; set; } = 1;
 
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public NextWhen NextWhen { get; set; } = NextWhen.Error | NextWhen.Timeout;
+
         public int NextTries { get; set; } = 0;
 
         public int NextTimeout { get; set; } = 0;
-
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public NextWhen NextWhen { get; set; } = NextWhen.Error | NextWhen.Timeout;
     }
 }

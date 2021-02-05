@@ -89,7 +89,7 @@ namespace Keep.Discovery
         public ConcurrentDictionary<Guid, IServiceInstance> InstanceMap { get; } =
             new ConcurrentDictionary<Guid, IServiceInstance>();
 
-        public BalancePolicy Policy =>
+        public BalancePolicy Balancing =>
             InstanceMap.Values.FirstOrDefault()?.BalancePolicy ?? BalancePolicy.RoundRobin;
 
         public int Version;

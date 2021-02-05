@@ -16,27 +16,32 @@ namespace Keep.Discovery.ZooPicker
         public class InstanceOptions
         {
             public string ServiceName { get; set; }
-            public int Port { get; set; } = 80;
-            public bool IsSecure { get; set; } = false;
+
+            public ServiceType Type { get; set; } = ServiceType.Rest;
+
+            public int Port { get; set; } = 0;
+
+            public bool Secure { get; set; } = false;
+
             public int Weight { get; set; } = 1;
-            public ServiceState ServiceState { get; set; } = ServiceState.Up;
-            public ServiceType ServiceType { get; set; } = ServiceType.Rest;
+
+            public ServiceState State { get; set; } = ServiceState.Up;
+
             public BalancePolicy BalancePolicy { get; set; } = BalancePolicy.RoundRobin;
+
             public int FailTimeout { get; set; } = 1000 * 10;
+
             public int MaxFails { get; set; } = 1;
-            public string IpAddress { get; set; }
+
+            public string IpAddress { get; set; } = "127.0.0.1";
+
             public bool PreferIpAddress { get; set; } = true;
 
-            public NextOptions Next { get; set; } = new NextOptions();
-        }
+            public NextWhen NextWhen { get; set; } = NextWhen.Error | NextWhen.Timeout;
 
-        public class NextOptions
-        {
-            public int Tries { get; set; } = 0;
+            public int NextTries { get; set; } = 0;
 
-            public int Timeout { get; set; } = 0;
-
-            public NextWhen When { get; set; } = NextWhen.Error | NextWhen.Timeout;
+            public int NextTimeout { get; set; } = 0;
         }
     }
 }

@@ -1,6 +1,20 @@
-快速开始
-===============
+# **Keep.Discovery**
 
+## 简介
+[Keep Discovery](http://gitlab.kede.net/technologyplatform/discovery)是基于asp.net core平台的服务发现框架。目前具有以下特性和限制：
+
+### 特性：
+1. 基于抽象实现，方便扩展支持其他热门服务发现组件，如Consul, Eureka等
+2. 拥有可靠的容灾能力
+3. 对开发完全透明，请求由标准的HttpClient完成
+4. 内置了“静态发现”功能，方便本地调试
+5. 可与Refit集成，只需申明接口，自动成成Client代码
+
+### 限制（暂时）：
+1. 只支持Restful Api (http协议)，不支持WCF, gRPC等rpc协议
+2. 只支持基于ZooKeeper实现的ZooPicker服务发现组件
+
+## 快速开始
 ### NuGet
 ```
 dotnet add package Keep.Discovery
@@ -35,18 +49,28 @@ public void ConfigureServices(IServiceCollection services)
     "ShouldRegister": true,
 
     "ZooPicker": {
-      "ConnectionString": "192.168.117.52:2181/services",
+      "ConnectionString": "127.0.0.1:2181/services",
       "SessionTimeout": 4000,
       "ConnectionTimeout": 3000,
       "GroupName": "yourgroup",
       //"Password": "123456",
 
       "Instance": {
-        "ServiceName": "yourservicename",
-        "Port": 5000,
-        "State": "Up", //Down
-        "IpAddress": "localhost",
-        "PreferIpAddress": true
+        "ServiceName": "testapi",
+        "Type": "Rest",
+        "Port": 5003,
+        "Balancing": "RoundRobin",
+        "IpAddress": "127.0.0.1",
+        "PreferIpAddress": true,
+
+        "Weight": 1,
+        "State": "Up",
+
+        "FailTimeout": 10000,
+        "MaxFails": 1,
+        "NextWhen": "Error,Timeout",
+        "NextTries": 3,
+        "NextTimeout": 0
       }
     }
   }

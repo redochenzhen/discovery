@@ -84,7 +84,7 @@ namespace Keep.Discovery.ZooPicker
                     hostName = instanceOpts.IpAddress ?? DnsHelper.ResolveIpAddress(hostName);
                 }
                 var entry = instanceOpts.ToEntry();
-                entry.Host = hostName;
+                entry.HostName = hostName;
                 Observable.FromEventPattern<OptionsEventArgs>(
                     h => OptionsChanged += h,
                     h => OptionsChanged -= h)
@@ -95,7 +95,7 @@ namespace Keep.Discovery.ZooPicker
                        var insOpts = opts.Instance;
                        if (ShouldUpdate(entry, insOpts))
                        {
-                           entry.State = insOpts.ServiceState;
+                           entry.State = insOpts.State;
                            entry.Weight = insOpts.Weight;
                            await instanceNode.SetDataAsync(entry);
                            _logger.LogDebug($"[{serviceName}] state: {entry.State}, weight: {entry.Weight}");
@@ -109,7 +109,7 @@ namespace Keep.Discovery.ZooPicker
 
         private bool ShouldUpdate(InstanceEntry entry, ZooPickerOptions.InstanceOptions insOpts)
         {
-            return entry.State != insOpts.ServiceState ||
+            return entry.State != insOpts.State ||
                 entry.Weight != insOpts.Weight;
         }
 

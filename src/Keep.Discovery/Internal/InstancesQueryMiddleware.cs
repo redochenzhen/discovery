@@ -42,7 +42,7 @@ namespace Keep.Discovery.Internal
                     .Select(si =>
                     {
                         var entry = si.ToEntry();
-                        entry.Name = null;
+                        entry.ServiceName = null;
                         return entry;
                     })
                     .ToList()

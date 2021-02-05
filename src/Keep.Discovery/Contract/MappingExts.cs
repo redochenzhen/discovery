@@ -11,15 +11,15 @@ namespace Keep.Discovery.Contract
                 throw new ArgumentNullException(nameof(instanceEntry));
             }
             return new ServiceInstance(
-                instanceEntry.Host,
+                instanceEntry.HostName,
                 instanceEntry.Port,
                 instanceEntry.Secure)
             {
-                ServiceName = instanceEntry.Name,
+                ServiceName = instanceEntry.ServiceName,
                 ServiceState = instanceEntry.State,
                 ServiceType = instanceEntry.Type,
                 Weight = instanceEntry.Weight,
-                BalancePolicy = instanceEntry.Policy,
+                BalancePolicy = instanceEntry.Balancing,
                 FailTimeout = instanceEntry.FailTimeout,
                 MaxFails = instanceEntry.MaxFails,
                 NextWhen = instanceEntry.NextWhen,
@@ -36,14 +36,14 @@ namespace Keep.Discovery.Contract
             }
             return new InstanceEntry
             {
-                Name = serviceInstance.ServiceName,
+                ServiceName = serviceInstance.ServiceName,
                 Type = serviceInstance.ServiceType,
-                Host = serviceInstance.HostName,
+                HostName = serviceInstance.HostName,
                 Port = serviceInstance.Port,
                 Secure = serviceInstance.IsSecure,
                 State = serviceInstance.ServiceState,
                 Weight = serviceInstance.Weight,
-                Policy = serviceInstance.BalancePolicy,
+                Balancing = serviceInstance.BalancePolicy,
                 FailTimeout = serviceInstance.FailTimeout,
                 MaxFails = serviceInstance.MaxFails,
                 NextWhen = serviceInstance.NextWhen,

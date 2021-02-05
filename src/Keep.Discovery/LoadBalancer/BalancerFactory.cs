@@ -23,7 +23,7 @@ namespace Keep.Discovery.LoadBalancer
         public IBalancer CreateBalancer(string serviceName)
         {
             var record = _instanceCache.GetCacheRecord(serviceName);
-            var policy = record?.Policy ?? BalancePolicy.RoundRobin;
+            var policy = record?.Balancing ?? BalancePolicy.RoundRobin;
             if (policy == BalancePolicy.RoundRobin)
             {
                 var logger = _serviceProvider.GetService<ILogger<RoundRobinBalancer>>();
