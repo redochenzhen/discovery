@@ -1,7 +1,7 @@
 # **Keep.Discovery**
 
 ## 简介
-[Keep Discovery](http://gitlab.kede.net/technologyplatform/discovery)是基于asp.net core平台的服务发现框架。目前具有以下特性和限制：
+[Keep Discovery](https://github.com/redochenzhen/discovery)是基于asp.net core平台的服务发现框架。目前具有以下特性和限制：
 
 ### 特性
 1. 基于抽象实现，方便扩展支持其他热门服务发现组件，如Consul, Eureka等
@@ -11,7 +11,7 @@
 5. 可与Refit集成，只需申明接口，自动成成Client代码
 
 ### 同步Submodule
-git clone http://gitlab.kede.net/technologyplatform/discovery.git<br />
+git clone https://github.com/redochenzhen/discovery.git<br />
 cd discovery<br />
 git submodule update --init<br />
 
