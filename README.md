@@ -8,7 +8,7 @@
 2. 拥有可靠的容灾能力
 3. 对开发完全透明，请求由标准的HttpClient完成
 4. 内置了“静态发现”功能，方便本地调试
-5. 可与Refit集成，只需申明接口，自动成成Client代码
+5. 可与Refit集成，只需申明接口，自动生成Client代码
 
 ### 同步Submodule
 git clone https://github.com/redochenzhen/discovery.git<br />
