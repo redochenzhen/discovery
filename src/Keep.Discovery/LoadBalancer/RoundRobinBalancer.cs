@@ -98,7 +98,7 @@ namespace Keep.Discovery.LoadBalancer
                 .ToList();
             if (!init)
             {
-                //上游服务端版本号变动，可能引起“已尝试“标记失效（基于索引）
+                //上游服务端版本号变动，可能引起“已尝试”标记失效
                 TriedMark = new BitArray(TriedMark.Length);
             }
             PeersVersion = CacheVersion;

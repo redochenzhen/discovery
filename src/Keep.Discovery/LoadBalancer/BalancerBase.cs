@@ -10,15 +10,15 @@ namespace Keep.Discovery.LoadBalancer
         protected readonly ILogger _logger;
         protected InstanceCacheRecord _record;
         protected IList<UpstreamPeer> _peers;
-        public int PeersVersion { get; protected set; } = 0;
-        public int PeersCount => _peers?.Count ?? 0;
-
+        protected BitArray _triedMark;
         /// <summary>
-        /// 实例版本号（比如网络抖动导致服务实例上下线将会导致该版本号递增）
+        /// 实例缓存版本号（比如网络抖动引起服务实例上下线，将会导致该版本号递增）
         /// </summary>
         protected int CacheVersion => _record.Version;
 
-        protected BitArray _triedMark;
+        public BitArray TriedMark { get; set; }
+        public int PeersVersion { get; protected set; } = 0;
+        public int PeersCount => _peers?.Count ?? 0;
 
         public BalancerBase(ILogger logger, InstanceCacheRecord record)
         {
@@ -29,7 +29,5 @@ namespace Keep.Discovery.LoadBalancer
         public abstract UpstreamPeer Pick();
 
         protected abstract void Reset(bool init = false);
-
-        public BitArray TriedMark { get; set; }
     }
 }
