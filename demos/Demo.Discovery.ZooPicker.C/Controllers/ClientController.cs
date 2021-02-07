@@ -27,8 +27,8 @@ namespace Demo.Discovery.ZooPicker.C.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var x = await _testClient.GetValueAsync();
-            //var x = await _testApi.GetAsync();
+            //var x = await _testClient.GetValueAsync();
+            var x = await _testApi.GetAsync();
             return Ok(x);
         }
 
