@@ -10,8 +10,6 @@ namespace Keep.Discovery.Pump
     {
         void Pumping();
 
-
         Task<bool> AcceptThenDispatchAsync(HandlingContext context);
-
     }
 }

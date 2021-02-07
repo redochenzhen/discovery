@@ -2,8 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 using Keep.Discovery.Http;
 using Keep.Discovery.Internal;
 using Keep.Discovery.LoadBalancer;
@@ -16,7 +16,7 @@ namespace Keep.Discovery.Pump
     {
         private readonly ILogger _logger;
         private readonly CancellationTokenSource _cts;
-        private readonly BufferBlock<HandlingContext> _requestBuffer;
+        private readonly Channel<HandlingContext> _requestBuffer;
         private readonly DiscoveryOptions _options;
         private readonly ThreadLocal<Dictionary<string, IBalancer>> _balancers;
         private readonly IBalancerFactory _balancerFactory;
@@ -30,12 +30,7 @@ namespace Keep.Discovery.Pump
             HttpUpstreamHandler handler)
         {
             _cts = new CancellationTokenSource();
-            var dbOption = new DataflowBlockOptions
-            {
-                CancellationToken = _cts.Token
-            };
-            _requestBuffer = new BufferBlock<HandlingContext>(dbOption);
-
+            _requestBuffer = Channel.CreateUnbounded<HandlingContext>();
             _logger = logger;
             _options = options.Value;
             _balancers = new ThreadLocal<Dictionary<string, IBalancer>>();
@@ -44,12 +39,12 @@ namespace Keep.Discovery.Pump
             handler.SetDispatcher(this);
         }
 
-
         public async Task<bool> AcceptThenDispatchAsync(HandlingContext context)
         {
-            return await _requestBuffer.SendAsync(context, _cts.Token);
+            var writer = _requestBuffer.Writer;
+            await writer.WriteAsync(context);
+            return true;
         }
-
 
         public void Dispose()
         {
@@ -65,31 +60,38 @@ namespace Keep.Discovery.Pump
             }
         }
 
+        //该方法中不宜使用异步编程，确保一直处于long-running线程中
+        //否则将对线程池造成额外负担，且浪费不必要的ThreadLocal Balancers
         private void Handling()
         {
-            //这里使用同步调用，确保一直使用long-running线程
-            while (_requestBuffer.OutputAvailableAsync(_cts.Token).Result)
+            var reader = _requestBuffer.Reader;
+            Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+            while (reader.WaitToReadAsync(_cts.Token).AsTask().Result)
             {
-                var ctx = _requestBuffer.ReceiveAsync().Result;
-                string serviceName = ctx.Request.RequestUri.Host;
-
-                var balancerMap = _balancers.Value;
-                if (balancerMap == null)
+#if DEBUG
+                _logger.LogDebug(Thread.CurrentThread.ManagedThreadId.ToString());
+#endif
+                while (reader.TryRead(out var handlingCtx))
                 {
-                    balancerMap = new Dictionary<string, IBalancer>();
-                    _balancers.Value = balancerMap;
+                    string serviceName = handlingCtx.Request.RequestUri.Host;
+                    var balancerMap = _balancers.Value;
+                    if (balancerMap == null)
+                    {
+                        balancerMap = new Dictionary<string, IBalancer>();
+                        _balancers.Value = balancerMap;
+                    }
+                    if (!balancerMap.TryGetValue(serviceName, out var balancer))
+                    {
+                        balancer = _balancerFactory.CreateBalancer(serviceName);
+                        balancerMap.Add(serviceName, balancer);
+                    }
+                    //如果这是一个重试请求，上下文会携带tried标记，避开已经尝试过的peer
+                    balancer.TriedMark = handlingCtx.TriedMark ?? new BitArray(balancer.PeersCount);
+                    var peer = balancer.Pick();
+                    handlingCtx.TriedMark = balancer.TriedMark;
+                    handlingCtx.PeersVersion = balancer.PeersVersion;
+                    _handler.Handle(handlingCtx, peer);
                 }
-                if (!balancerMap.TryGetValue(serviceName, out var balancer))
-                {
-                    balancer = _balancerFactory.CreateBalancer(serviceName);
-                    balancerMap.Add(serviceName, balancer);
-                }
-                //如果这是一个重试请求，上下文会携带tried标记，避开已经尝试过的peer
-                balancer.TriedMark = ctx.TriedMark ?? new BitArray(balancer.PeersCount);
-                var peer = balancer.Pick();
-                ctx.TriedMark = balancer.TriedMark;
-                ctx.PeersVersion = balancer.PeersVersion;
-                _handler.Handle(ctx, peer);
             }
         }
 

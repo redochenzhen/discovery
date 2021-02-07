@@ -15,7 +15,6 @@ namespace Keep.Discovery.Http
     {
         private readonly ILogger _logger;
         private IDispatcher _dispatcher;
-        private readonly IOptions<DiscoveryOptions> _options;
 
         public HttpUpstreamHandler(ILogger<HttpUpstreamHandler> logger)
         {
@@ -28,14 +27,14 @@ namespace Keep.Discovery.Http
         }
 
         public void Handle(
-            HandlingContext context,
+            HandlingContext handlingContext,
             UpstreamPeer peer)
         {
             //负载均衡完成选择之后，由线程池线程完成接下来的http请求处理
             Task.Run(async () =>
             {
-                var request = context.Request;
-                var tcs = context.ResponsSource;
+                var request = handlingContext.Request;
+                var tcs = handlingContext.ResponsSource;
                 var originalUri = request.RequestUri;
                 //string originalScheme = current.Scheme;
                 var response = default(HttpResponseMessage);
@@ -51,9 +50,9 @@ namespace Keep.Discovery.Http
                             peer.Connections++;
                         }
                     }
-                    var ct = context.CancellationToken;
-                    response = await context.HandleAsync(request, ct);
-                    if (!await NextPeerAsync(context, peer, response, originalUri))
+                    var ct = handlingContext.CancellationToken;
+                    response = await handlingContext.HandleAsync(request, ct);
+                    if (!await NextPeerAsync(handlingContext, peer, response, originalUri))
                     {
                         tcs.TrySetResult(response);
                     }
@@ -66,14 +65,14 @@ namespace Keep.Discovery.Http
                 }
                 catch (TimeoutException ex)
                 {
-                    if (!await NextPeerAsync(context, peer, response, originalUri, true))
+                    if (!await NextPeerAsync(handlingContext, peer, response, originalUri, true))
                     {
                         tcs.SetException(ex);
                     }
                 }
                 catch (HttpRequestException ex)
                 {
-                    if (!await NextPeerAsync(context, peer, response, originalUri))
+                    if (!await NextPeerAsync(handlingContext, peer, response, originalUri))
                     {
                         tcs.TrySetException(ex);
                     }
@@ -85,35 +84,35 @@ namespace Keep.Discovery.Http
                 }
                 finally
                 {
-                    FreePeer(context, peer, response);
+                    FreePeer(handlingContext, peer, response);
                 }
             });
         }
 
         /// <returns>是否尝试了“下一个”上游服务端</returns>
         private async Task<bool> NextPeerAsync(
-            HandlingContext context,
+            HandlingContext handlingContext,
             UpstreamPeer peer,
             HttpResponseMessage response,
             Uri originUri,
             bool isTimeout = false)
         {
             if (peer == null) return false;
-            if (context.IsSingle) return false;
+            if (handlingContext.IsSingle) return false;
 
-            context.Start = context.Start ?? DateTime.Now;
+            handlingContext.Start = handlingContext.Start ?? DateTime.Now;
 
             if (NextWhen.Never == (peer.NextWhen & NextWhen.Never)) return false;
 
-            var request = context.Request;
+            var request = handlingContext.Request;
             if (request.Method != HttpMethod.Get &&
                 NextWhen.GetOnly == (peer.NextWhen & NextWhen.GetOnly))
             {
                 return false;
             }
 
-            context.Tries = context.Tries ?? (peer.NextTries == 0 ? int.MaxValue : peer.NextTries);
-            if (context.Tries == 0) return false;
+            handlingContext.Tries = handlingContext.Tries ?? (peer.NextTries == 0 ? int.MaxValue : peer.NextTries);
+            if (handlingContext.Tries == 0) return false;
 
             var when = NextWhen.None;
             if (isTimeout)
@@ -167,12 +166,13 @@ namespace Keep.Discovery.Http
 
             if (when != (when & peer.NextWhen)) return false;
 
-            if (DateTime.Now - context.Start >= peer.NextTimeout) return false;
+            if (DateTime.Now - handlingContext.Start >= peer.NextTimeout) return false;
 
-            context.Request = request.Clone(originUri);
-            var next = await _dispatcher.AcceptThenDispatchAsync(context);
+            handlingContext.Request = request.Clone(originUri);
+            //保持上下文重试
+            var next = await _dispatcher.AcceptThenDispatchAsync(handlingContext);
 
-            context.Tries--;
+            handlingContext.Tries--;
             return next;
         }
 
