@@ -40,9 +40,9 @@ request.SetTimeout(TimeSpan.FromSeconds(10));
 ```
 这样，请求超时后会抛出TimeoutException。如果你的配置Discovery:ZooPicker:Instance:Next:When中包含了Timeout枚举，框架就能正确的执行重试策略
 <br /><br />
-如果你使用了Refit（请求代码自动生成），请使用PropertyAttribute来设置超时时间
+如果你使用了Refit（Client代码自动生成），请使用PropertyAttribute来设置超时时间。值得注意的是，PropertyAttribute在Refit包6.0.0+(preview)版本中才提供，且该版本要求使用Net5。
 ```cs
 [Get("/users/{id}")]
-Task<User> GetUserAsync(int id, [Property("X-RequestTimeout")] TimeSpan requestTimeout);
+Task<User> GetUserAsync(int id, [Property(TimeoutHandler.TIMEOUT_KEY)] TimeSpan requestTimeout);
 ```
 ***************
