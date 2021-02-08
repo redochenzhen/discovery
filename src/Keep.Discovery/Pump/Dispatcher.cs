@@ -65,11 +65,19 @@ namespace Keep.Discovery.Pump
         private void Handling()
         {
             var reader = _requestBuffer.Reader;
-            Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+#if DEBUG
+            if (_options.WorkerThreads == 1)
+            {
+                _logger.LogDebug($"Should alway be in the same thread: {Thread.CurrentThread.ManagedThreadId}.");
+            }
+#endif
             while (reader.WaitToReadAsync(_cts.Token).AsTask().Result)
             {
 #if DEBUG
-                _logger.LogDebug(Thread.CurrentThread.ManagedThreadId.ToString());
+                if (_options.WorkerThreads == 1)
+                {
+                    _logger.LogDebug($"Should be alway in the same thread: {Thread.CurrentThread.ManagedThreadId}.");
+                }
 #endif
                 while (reader.TryRead(out var handlingCtx))
                 {

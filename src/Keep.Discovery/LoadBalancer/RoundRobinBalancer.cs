@@ -88,26 +88,13 @@ namespace Keep.Discovery.LoadBalancer
         protected override void Reset(bool init = false)
         {
             _peers = _record.InstanceMap.Values
-                .Select(si => new UpstreamPeer
+                .Select(ins => new UpstreamPeer
                 {
-                    Instance = si,
-                    EffectiveWeight = si.Weight,
-                    CurrentWeight = 0,
-                    Fails = 0,
+                    Instance = ins,
+                    EffectiveWeight = ins.Weight,
                 })
                 .ToList();
-            if (!init)
-            {
-                //上游服务端版本号变动，可能引起“已尝试”标记失效
-                TriedMark = new BitArray(TriedMark.Length);
-            }
-            PeersVersion = CacheVersion;
-#if DEBUG
-            if (PeersVersion != 0)
-            {
-                _logger?.LogDebug($"Upstream peers reset due to cache vertion changing. (count: {_peers.Count}, version: {PeersVersion})");
-            }
-#endif
+            base.Reset(init);
         }
     }
 }

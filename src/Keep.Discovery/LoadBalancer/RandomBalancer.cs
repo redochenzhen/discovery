@@ -12,6 +12,9 @@ using System.Threading;
 
 namespace Keep.Discovery.LoadBalancer
 {
+    /// <summary>
+    /// 带权重的随机负载均衡器
+    /// </summary>
     internal class RandomBalancer : BalancerBase
     {
         private readonly Random _random;
@@ -61,13 +64,10 @@ namespace Keep.Discovery.LoadBalancer
                     }
                 }
 
-                if (peer.EffectiveWeight < peer.Weight)
+                var deltaW = peer.Weight - peer.EffectiveWeight;
+                if (deltaW != 0)
                 {
-                    ReWeight(i, _peers.Count, 1);
-                }
-                else if (peer.EffectiveWeight < peer.Weight)
-                {
-                    ReWeight(i, _peers.Count, -1);
+                    ReWeight(i, _peers.Count, deltaW);
                 }
 
                 if (max < peer.CurrentWeight)
@@ -99,8 +99,7 @@ namespace Keep.Discovery.LoadBalancer
         protected override void Reset(bool init = false)
         {
             var instances = _record.InstanceMap.Values.ToList();
-            int count = instances.Count;
-            _peers = new List<UpstreamPeer>(count);
+            _peers = new List<UpstreamPeer>(instances.Count);
             var pre = default(UpstreamPeer);
             foreach (var ins in instances)
             {
@@ -113,15 +112,7 @@ namespace Keep.Discovery.LoadBalancer
                 _peers.Add(peer);
                 pre = peer;
             }
-            if (!init)
-            {
-                TriedMark = new BitArray(TriedMark.Length);
-            }
-            PeersVersion = CacheVersion;
-            if (PeersVersion != 0)
-            {
-                _logger?.LogDebug($"Upstream peers reset due to cache vertion changing. (count: {_peers.Count}, version: {PeersVersion})");
-            }
+            base.Reset(init);
         }
 
         private void ReWeight(int from, int to, int w)

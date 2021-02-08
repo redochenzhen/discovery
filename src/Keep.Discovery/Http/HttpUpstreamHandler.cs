@@ -3,7 +3,6 @@ using Keep.Discovery.Internal;
 using Keep.Discovery.LoadBalancer;
 using Keep.Discovery.Pump;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -213,14 +212,13 @@ namespace Keep.Discovery.Http
                     return;
                 }
                 peer.Fails++;
-                //强调失败刚刚发生，重置对该peer的冻结时间（Now - peer.Checked）
+                //失败刚刚发生，重置对该peer的冻结时间（Now - peer.Checked）
                 peer.Checked = DateTime.Now;
                 //随着失败次数逐渐接近MaxFails，权重平滑渐小
                 //如果MaxFails为1，则会导致权重立即衰减至0
                 if (peer.MaxFails > 0)
                 {
                     peer.EffectiveWeight -= peer.Weight / peer.MaxFails;
-
                     if (peer.Fails >= peer.MaxFails)
                     {
                         _logger.LogDebug($"Upstream peer temporarily freezed.");
