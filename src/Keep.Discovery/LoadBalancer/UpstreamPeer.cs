@@ -14,11 +14,16 @@ namespace Keep.Discovery.LoadBalancer
 
         public IServiceInstance Instance { get; set; }
 
-        public int EffectiveWeight { get; set; }
-
-        public int CurrentWeight { get; set; }
-
         public int Weight => Instance?.Weight ?? 0;
+
+        //for rondrobin--------------------------------
+        public int EffectiveWeight { get; set; }
+        public int CurrentWeight { get; set; }
+        //---------------------------------------------
+
+        //for random-----------------------------------
+        public int Range { get; set; } 
+        //---------------------------------------------
 
         public ServiceState State => Instance?.ServiceState ?? ServiceState.Down;
 
@@ -35,6 +40,8 @@ namespace Keep.Discovery.LoadBalancer
         }
 
         public DateTime Checked { get; set; }
+
+        public DateTime LastFailed { get; set; }
 
         public int MaxFails => Instance?.MaxFails ?? 0;
 
@@ -69,6 +76,7 @@ namespace Keep.Discovery.LoadBalancer
         /// <summary>
         /// 由于请求失败而临时冻结
         /// </summary>
-        public bool FreezedByFails => MaxFails != 0 && Fails >= MaxFails && DateTime.Now - Checked <= FailTimeout;
+        public bool FreezedByFails(DateTime now) => 
+            MaxFails != 0 && Fails >= MaxFails && now - Checked <= FailTimeout;
     }
 }

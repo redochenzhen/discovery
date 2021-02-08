@@ -35,18 +35,18 @@ namespace Keep.Discovery.LoadBalancer
             var best = default(UpstreamPeer);
             int bestIdx = 0;
             int total = 0;
-
+            var now = DateTime.Now;
             for (int i = 0; i < _peers.Count; i++)
             {
                 var peer = _peers[i];
 
                 if (peer.State == ServiceState.Down) continue;
 
-                if (TriedMark.Get(i)) continue;
+                if (TriedMark?.Get(i) ?? false) continue;
 
                 //请求第一次失败时，可能已经有多个请求使用了相同的peer，导致多个请求失败；
                 //每当FailTimeout到期时，该peer仅会放行一次，导致一个请求失败（如果该peer还没恢复的话）
-                if (peer.FreezedByFails) continue;
+                if (peer.FreezedByFails(now)) continue;
 
                 total += peer.EffectiveWeight;
                 peer.CurrentWeight += peer.EffectiveWeight;
@@ -68,10 +68,8 @@ namespace Keep.Discovery.LoadBalancer
             }
             if (best != null)
             {
-                TriedMark.Set(bestIdx, true);
+                TriedMark?.Set(bestIdx, true);
                 best.CurrentWeight -= total;
-                //这里的now比FreezedByFails内使用的now略大，可保持“>”的关系，不至于乱了check的节奏
-                var now = DateTime.Now;
                 if (now - best.Checked > best.FailTimeout)
                 {
                     best.Checked = now;

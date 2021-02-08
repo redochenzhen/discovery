@@ -1,6 +1,7 @@
 using Keep.Discovery.Contract;
 using Keep.Discovery.LoadBalancer;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -16,7 +17,7 @@ namespace Keep.Discovery.Tests
             {
                 new ServiceInstance("test", 80) { Weight = 1 },
                 new ServiceInstance("test", 81) { Weight = 2 },
-                new ServiceInstance("test", 82) { Weight = 3 }
+                new ServiceInstance("test", 82) { Weight = 3 },
             };
             var record = new InstanceCacheRecord();
             foreach (var ins in instances)
@@ -25,7 +26,6 @@ namespace Keep.Discovery.Tests
             }
             var balancer = new RoundRobinBalancer(null, record);
             var ports = Enumerable.Range(0, 300).Select(_ => balancer.Pick().Instance.Port);
-
             {
                 var x80 = ports.Count(p => p == 80);
                 var x81 = ports.Count(p => p == 81);
@@ -61,7 +61,7 @@ namespace Keep.Discovery.Tests
             {
                 new ServiceInstance("test", 80) { Weight = 1 },
                 new ServiceInstance("test", 81) { Weight = 2 },
-                new ServiceInstance("test", 82) { Weight = 3 }
+                new ServiceInstance("test", 82) { Weight = 3 },
             };
             var record = new InstanceCacheRecord();
             foreach (var ins in instances)
@@ -122,9 +122,9 @@ namespace Keep.Discovery.Tests
         {
             var instances = new List<IServiceInstance>
             {
-                new ServiceInstance("test", 80) { Weight = 1,ServiceState=ServiceState.Down },
-                new ServiceInstance("test", 81) { Weight = 2,ServiceState=ServiceState.Down },
-                new ServiceInstance("test", 82) { Weight = 3,ServiceState=ServiceState.Down }
+                new ServiceInstance("test", 80) { Weight = 1, ServiceState=ServiceState.Down },
+                new ServiceInstance("test", 81) { Weight = 2, ServiceState=ServiceState.Down },
+                new ServiceInstance("test", 82) { Weight = 3, ServiceState=ServiceState.Down },
             };
             var record = new InstanceCacheRecord();
             foreach (var ins in instances)

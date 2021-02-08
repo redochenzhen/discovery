@@ -45,51 +45,69 @@ namespace Keep.Discovery.LoadBalancer
             for (int i = 0; i < _peers.Count; i++)
             {
                 peer = _peers[i];
-                if (peer.State == ServiceState.Down)
+                int r = 0;
+                //被设为Down后的第一次pick
+                if (peer.State == ServiceState.Down && peer.Range > 0) r = -1;
+                else if (peer.State == ServiceState.Up && peer.Range < 0) r = 1;
+
+                if (r != 0)
                 {
-                    //被设为Down后的第一次Pick
-                    if (peer.CurrentWeight > 0)
-                    {
-                        peer.CurrentWeight = -peer.CurrentWeight;
-                        ReWeight(i + 1, _peers.Count, -peer.EffectiveWeight);
-                    }
-                    continue;
-                }
-                else
-                {
-                    if (peer.CurrentWeight < 0)
-                    {
-                        peer.CurrentWeight = -peer.CurrentWeight;
-                        ReWeight(i + 1, _peers.Count, peer.EffectiveWeight);
-                    }
+                    peer.Range *= -1;
+                    ReWeight(i + 1, _peers.Count, peer.Weight * r);
                 }
 
-                var deltaW = peer.Weight - peer.EffectiveWeight;
-                if (deltaW != 0)
-                {
-                    ReWeight(i, _peers.Count, deltaW);
-                }
+                if (peer.State == ServiceState.Down) continue;
 
-                if (max < peer.CurrentWeight)
+                if (max < peer.Range)
                 {
-                    max = peer.CurrentWeight;
+                    max = peer.Range;
                 }
             }
 
             if (max == 0) return null;
 
             var best = default(UpstreamPeer);
-            int idx = _random.Next(max);
-            foreach (var p in _peers)
+            int bestIdx = 0;
+            var now = DateTime.Now;
+            //随机算法可能多次命中无效peer，最多尝试20次
+            for (int tries = 0; tries < 20 && best == null; tries++)
             {
-                if (idx < p.CurrentWeight)
+                int idx = _random.Next(max);
+                for (int i = 0; i < _peers.Count; i++)
                 {
-                    best = p;
-                    break;
+                    peer = _peers[i];
+                    if (idx < peer.Range)
+                    {
+                        if (TriedMark?.Get(i) ?? false) break;
+                        if (peer.FreezedByFails(now)) break;
+                        best = peer;
+                        bestIdx = i;
+                        break;
+                    }
+                }
+            }
+            //如果多次尝试后还是没有找到，则降级为简单选择一个可用peer
+            if (best == null)
+            {
+                for (int i = 0; i < _peers.Count; i++)
+                {
+                    peer = _peers[i];
+                    if (TriedMark?.Get(i) ?? false) continue;
+                    if (peer.FreezedByFails(now)) continue;
+                    best = peer;
+                    bestIdx = i;
+                }
+            }
+            if (best != null)
+            {
+                TriedMark?.Set(bestIdx, true);
+                if (now - best.Checked > best.FailTimeout)
+                {
+                    best.Checked = now;
                 }
             }
 #if DEBUG
-            var cw = _peers.Aggregate(new StringBuilder("0 - "), (a, c) => a.Append(c.CurrentWeight).Append(" - "));
+            var cw = _peers.Aggregate(new StringBuilder("0 - "), (a, c) => a.Append(c.Range).Append(" - "));
             cw.Remove(cw.Length - 3, 3);
             _logger?.LogDebug($"Current weight ranges: ({cw})");
 #endif
@@ -106,9 +124,8 @@ namespace Keep.Discovery.LoadBalancer
                 var peer = new UpstreamPeer
                 {
                     Instance = ins,
-                    EffectiveWeight = ins.Weight,
                 };
-                peer.CurrentWeight = peer.EffectiveWeight + (pre?.CurrentWeight ?? 0);
+                peer.Range = peer.Weight + (pre?.Range ?? 0);
                 _peers.Add(peer);
                 pre = peer;
             }
@@ -120,9 +137,8 @@ namespace Keep.Discovery.LoadBalancer
             for (int i = from; i < to; i++)
             {
                 var peer = _peers[i];
-                var cur = peer.CurrentWeight;
-                if (cur > 0) peer.CurrentWeight += w;
-                else if (cur < 0) peer.CurrentWeight -= w;
+                if (peer.Range > 0) peer.Range += w;
+                else if (peer.Range < 0) peer.Range -= w;
             }
         }
     }
