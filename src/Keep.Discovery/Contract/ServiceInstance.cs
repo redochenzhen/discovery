@@ -18,7 +18,7 @@ namespace Keep.Discovery.Contract
             get { return new Uri($"{(IsSecure ? "https" : "http")}://{HostName}:{Port}"); }
         }
 
-        public IDictionary MetaData { get; set; }
+        public IDictionary Metadata { get; set; }
 
         public ServiceState ServiceState { get; set; }
 

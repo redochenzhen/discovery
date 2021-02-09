@@ -1,16 +1,16 @@
 # **Keep.Discovery**
 
 ## 简介
-[Keep Discovery](https://github.com/redochenzhen/discovery)是基于asp.net core平台的服务发现框架。目前具有以下特性和限制：
+[Keep.Discovery](https://github.com/redochenzhen/discovery)是基于asp.net core平台的服务发现框架。目前具有以下特性和限制：
 
-### 特性：
+### 特性
 1. 基于抽象实现，方便扩展支持其他热门服务发现组件，如Consul, Eureka等
 2. 拥有可靠的容灾能力
 3. 对开发完全透明，请求由标准的HttpClient完成
 4. 内置了“静态发现”功能，方便本地调试
 5. 可与Refit集成，只需申明接口，自动生成Client代码
 
-### 限制（暂时）：
+### 限制（暂时）
 1. 只支持Restful Api (http协议)，不支持WCF, gRPC等rpc协议
 2. 只支持基于ZooKeeper实现的ZooPicker服务发现组件
 

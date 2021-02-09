@@ -4,8 +4,24 @@ using System.Text;
 
 namespace Keep.Discovery.Contract
 {
+    /// <summary>
+    /// 服务类型
+    /// </summary>
     public enum ServiceType
     {
-        Rest, Grpc
+        /// <summary>
+        /// Restful服务
+        /// </summary>
+        Rest,
+        
+        /// <summary>
+        /// gGRP服务
+        /// </summary>
+        Grpc,
+
+        /// <summary>
+        /// WCF服务
+        /// </summary>
+        Wcf
     }
 }

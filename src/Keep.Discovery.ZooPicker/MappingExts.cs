@@ -5,31 +5,36 @@ namespace Keep.Discovery.ZooPicker
 {
     public static class MappingExts
     {
-        public static InstanceEntry ToEntry(this ZooPickerOptions.InstanceOptions instanceOpts)
+        /// <summary>
+        /// ZooPickerOptions.InstanceOptions转InstanceEntry
+        /// </summary>
+        /// <param name="instanceOptions">ZooPickerOptions.InstanceOptions对象</param>
+        /// <returns>InstanceEntry对象</returns>
+        public static InstanceEntry ToEntry(this ZooPickerOptions.InstanceOptions instanceOptions)
         {
-            if (instanceOpts == null)
+            if (instanceOptions == null)
             {
-                throw new ArgumentNullException(nameof(instanceOpts));
+                throw new ArgumentNullException(nameof(instanceOptions));
             }
-            int port = instanceOpts.Port;
+            int port = instanceOptions.Port;
             if (port == 0)
             {
-                port = instanceOpts.Secure ? 443 : 80;
+                port = instanceOptions.Secure ? 443 : 80;
             }
             return new InstanceEntry
             {
-                ServiceName = instanceOpts.ServiceName,
+                ServiceName = instanceOptions.ServiceName,
                 Port = port,
-                Type = instanceOpts.Type,
-                State = instanceOpts.State,
-                Secure = instanceOpts.Secure,
-                Weight = instanceOpts.Weight,
-                Balancing = instanceOpts.BalancePolicy,
-                FailTimeout = instanceOpts.FailTimeout,
-                MaxFails = instanceOpts.MaxFails,
-                NextWhen = instanceOpts.NextWhen,
-                NextTries = instanceOpts.NextTries,
-                NextTimeout = instanceOpts.NextTimeout,
+                Type = instanceOptions.Type,
+                State = instanceOptions.State,
+                Secure = instanceOptions.Secure,
+                Weight = instanceOptions.Weight,
+                Balancing = instanceOptions.BalancePolicy,
+                FailTimeout = instanceOptions.FailTimeout,
+                MaxFails = instanceOptions.MaxFails,
+                NextWhen = instanceOptions.NextWhen,
+                NextTries = instanceOptions.NextTries,
+                NextTimeout = instanceOptions.NextTimeout,
             };
         }
 

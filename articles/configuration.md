@@ -5,7 +5,7 @@
 |Discovery|
 |:ShouldDiscover|bool|false|是否启用发现功能，一般服务的消费端设置为true|
 |:ShouldRegister|bool|false|是否注册为一个服务，一般服务的提供端设置为true|
-|:WorkerThreads|int|[cpu核数]|ZooPicker处理Http请求的线程|
+|:WorkerThreads|int|[cpu核数]|处理Http请求的线程数|
 |:DefaultRequestTimeout|int|100,000|Http请求默认超时时间，有别于HttpClient.Timeout，请[参见](http://docs.kede.net/discovery/articles/tips.html#requesttimeout)|
 |:PathMatch|string|/discovery|服务实例信息查询的路由配置|
 |:Mapping|array\<json\>|[]|用于静态服务发现的本地映射配置，与"PathMatch"路由下查询获得的数据结构相同|
@@ -26,7 +26,7 @@
 |:Weight|int|1|负载均衡权重 [变更立即有效]|
 |:State|enum|Up|服务状态，可选值为：Up/Down/Backup（Back暂不支持）  [变更立即有效]|
 |:FailTimeout|int|10,000|失败超时时间，当服务实例因失败而被临时冻结后，每隔FailTimeout将获得一次尝试机会，单位：ms|
-|:MaxFails|int|1|在FailTimeout时间内，失败数达到MaxFails，该服务实例被临时冻结，单位：ms|
+|:MaxFails|int|1|在FailTimeout时间内，失败数达到MaxFails，该服务实例被临时冻结|
 |:NextWhen|enum[flags]|Error,Timeout|当Http请求发生配置所述状况时，将选择另一个实例重试，可选值为：Never/Error,Timeout,Http500,Http502,Http503,Http403,Http404,NonIdemponent/GetOnly|
 |:NextTries|int|0（不限制）|限制重试次数
 |:NextTimeout|int|0（不限制）|限制重试时间

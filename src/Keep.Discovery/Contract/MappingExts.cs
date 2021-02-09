@@ -4,6 +4,11 @@ namespace Keep.Discovery.Contract
 {
     public static class MappingExts
     {
+        /// <summary>
+        /// InstanceEntry转ServiceInstance
+        /// </summary>
+        /// <param name="instanceEntry">InstanceEntry对象</param>
+        /// <returns>ServiceInstance对象</returns>
         public static IServiceInstance ToInstance(this InstanceEntry instanceEntry)
         {
             if (instanceEntry == null)
@@ -28,6 +33,11 @@ namespace Keep.Discovery.Contract
             };
         }
 
+        /// <summary>
+        /// ServiceInstance转InstanceEntry
+        /// </summary>
+        /// <param name="serviceInstance">ServiceInstance对象</param>
+        /// <returns>InstanceEntry对象</returns>
         internal static InstanceEntry ToEntry(this IServiceInstance serviceInstance)
         {
             if (serviceInstance == null)

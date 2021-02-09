@@ -8,6 +8,9 @@ using System.Threading;
 
 namespace Keep.Discovery
 {
+    /// <summary>
+    /// 服务实例内存缓存
+    /// </summary>
     public class InstanceCache
     {
         private readonly ILogger _logger;

@@ -3,6 +3,9 @@ using System.Collections;
 
 namespace Keep.Discovery.Contract
 {
+    /// <summary>
+    /// 服务实例契约接口
+    /// </summary>
     public interface IServiceInstance
     {
         string ServiceName { get; }
@@ -33,6 +36,6 @@ namespace Keep.Discovery.Contract
 
         Uri Uri { get; }
 
-        IDictionary MetaData { get; }
+        IDictionary Metadata { get; }
     }
 }
