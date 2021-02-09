@@ -87,7 +87,7 @@ namespace Keep.Discovery.ZooPicker
             /// <summary>
             /// 用此IP地址覆盖真实的IP地址（当PreferIpAddress=true时有效）
             /// </summary>
-            public string IpAddress { get; set; } = "127.0.0.1";
+            public string IpAddress { get; set; }
 
             /// <summary>
             /// 使用IP地址代替HostName
