@@ -3,9 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.0-preview6</Version>
+    <Version>1.0.0-preview7</Version>
     <Authors>Zhen,Kede</Authors>
     <Company>Kede</Company>
+    <PackageProjectUrl>https://github.com/redochenzhen/discovery</PackageProjectUrl>
+    <Description>Keep.Discovery是基于asp.net core平台的服务发现框架。</Description>
   </PropertyGroup>
 
   <ItemGroup>
