@@ -3,13 +3,13 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>Zhen,Kede</Authors>
-    <Version>1.0.0-preview3</Version>
+    <Version>1.0.0-beta1</Version>
     <Company>Kede</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Refit.HttpClientFactory" Version="6.0.0-preview.128" />
+    <PackageReference Include="Refit.HttpClientFactory" Version="6.0.24" />
   </ItemGroup>
 
   <ItemGroup>
