@@ -1,12 +1,10 @@
 ﻿using Keep.Discovery.Contract;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading;
 
 [assembly: InternalsVisibleTo("Keep.Discovery.Tests")]
 
@@ -15,11 +13,11 @@ namespace Keep.Discovery.LoadBalancer
     /// <summary>
     /// 带权重的随机负载均衡器
     /// </summary>
-    internal class RandomBalancer : BalancerBase
+    internal sealed class RandomBalancer : BalancerBase
     {
         private readonly Random _random;
 
-        public RandomBalancer(ILogger<RandomBalancer> logger, InstanceCacheRecord record) : base(logger, record)
+        public RandomBalancer(ILogger logger, InstanceCacheRecord record) : base(logger, record)
         {
             _random = new Random();
             Reset(true);

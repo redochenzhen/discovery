@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.0-beta1</Version>
+    <Version>1.0.1-alpha1</Version>
     <Authors>Zhen,Kede</Authors>
     <Company>Kede</Company>
     <PackageProjectUrl>https://github.com/redochenzhen/discovery</PackageProjectUrl>

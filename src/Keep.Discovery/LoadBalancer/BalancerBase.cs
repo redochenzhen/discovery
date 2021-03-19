@@ -33,13 +33,13 @@ namespace Keep.Discovery.LoadBalancer
             if (!init)
             {
                 //上游服务端版本号变动，可能引起“已尝试”标记失效
-                TriedMark = new BitArray(TriedMark.Length);
+                TriedMark = new BitArray(PeersCount);
             }
             PeersVersion = CacheVersion;
 #if DEBUG
             if (PeersVersion != 0)
             {
-                _logger?.LogDebug($"Upstream peers reset due to cache vertion changing. (count: {_peers.Count}, version: {PeersVersion})");
+                _logger?.LogDebug($"Upstream peers reset due to a change of cache version. (count: {_peers.Count}, version: {PeersVersion})");
             }
 #endif
         }

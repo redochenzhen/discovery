@@ -1,7 +1,6 @@
 ﻿using Keep.Discovery.Contract;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections;
 using System.Linq;
 using System.Text;
 
@@ -10,7 +9,7 @@ namespace Keep.Discovery.LoadBalancer
     /// <summary>
     /// 带权重的平滑轮训负载均衡器
     /// </summary>
-    internal class RoundRobinBalancer : BalancerBase
+    internal sealed class RoundRobinBalancer : BalancerBase
     {
         public RoundRobinBalancer(ILogger logger, InstanceCacheRecord record) : base(logger, record)
         {
