@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\ref\keep\src\Keep.Common\Keep.Common.csproj" />
     <ProjectReference Include="..\Keep.Discovery\Keep.Discovery.csproj" />
   </ItemGroup>
 

@@ -1,4 +1,0 @@
-[submodule "ref/keep"]
-	path = ref/keep
-	url = ../keep.git
-	branch = master

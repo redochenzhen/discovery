@@ -1,4 +1,4 @@
-﻿using Keep.Common.Framework;
+﻿using Keep.Framework;
 using System;
 
 namespace Keep.Discovery

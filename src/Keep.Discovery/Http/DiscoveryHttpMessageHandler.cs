@@ -1,4 +1,4 @@
-﻿using Keep.Common.Http;
+﻿using Keep.Http;
 using Keep.Discovery.Internal;
 using Keep.Discovery.Pump;
 using Microsoft.Extensions.Logging;

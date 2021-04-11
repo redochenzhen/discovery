@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Keep.Common;
+using Keep;
 
 namespace Keep.Discovery.Eureka
 {
