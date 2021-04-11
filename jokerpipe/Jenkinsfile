@@ -1,0 +1,165 @@
+//使用合适的jokerpipe版本
+@Library('jokerpipe@v1.7.x') _
+def switcher
+
+pipeline {
+  agent {
+    node {
+      label 'in && dotnetcore && gitversion'
+    }
+  }
+  
+  triggers { 
+    pollSCM (
+      env.BRANCH_NAME == 'master' ? 'H 2 * * 1-5' : ''
+    )
+  }
+
+  options {
+    gitLabConnection('Kede Gitlab')
+  }
+
+  stages {
+    stage('initialize') {
+      steps {
+        script {
+          //加载配置文件config.json
+          switcher = config.init()
+          gitlab.checkout()
+          //向gitlab上报状态为pending
+          gitlab.pend()
+          //job.conflict()
+          //加载jokerpipe-shell
+          shell.init()
+        }
+      }
+    }
+
+    stage('restore') {
+      when {
+        expression { switcher.restore }
+      }
+      
+      steps {
+        script {
+          build.restore()
+        }
+      }
+    }
+
+    stage('build') {
+      when {
+        expression { switcher.build }
+      }
+
+      steps {
+        script {
+          build.build()
+        }
+      }
+    }
+
+    stage('QA') {
+      when {
+        expression { switcher.QA }
+      }
+
+      parallel {
+        stage('unit-test') {
+          when {
+            expression { switcher.unitTest }
+          }
+
+          steps {
+            script {
+              qa.runUnitTest()
+            }
+          }
+        }
+
+        stage('sonar-analize') {
+          when {
+            expression { switcher.sonar }
+          }
+
+          steps {
+            script {
+              qa.runSonarAnalize()
+            }
+          }
+        }
+      }
+    }
+
+    stage('publish') {
+      when {
+        expression { switcher.publish }
+      }
+      
+      steps {
+        script {
+          build.publish()
+        }
+      }
+    }
+    
+    stage('deploy') {
+      when {
+        expression { switcher.deploy }
+      }
+
+      steps {
+        script {
+          build.deploy()
+        }
+      }
+
+      post {
+        success {
+          script {
+            dingTalk.succeed (
+              message: 'Successfully deployed.'
+            )
+          }
+        }
+
+        failure {
+          script {
+            dingTalk.fail (
+              message: 'Deployment is failed.'
+            )
+          }
+        }
+      }
+    }
+  }
+
+  post {
+    success {
+      script {
+        gitlab.succeed()
+        dingTalk.succeed (
+          message: 'Pipeline is successful.'
+        )
+      }
+    }
+
+    failure {
+      script {
+        gitlab.fail()
+        dingTalk.fail (
+          message: 'Pipeline is failed.'
+        )
+      }
+    }
+    
+    aborted {
+      script {
+        gitlab.abort()
+        dingTalk.abort (
+          message: 'Pipeline is aborted.'
+        )
+      }
+    }
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "name": "discovery",
+  "author": "kede",
+  "group": "technology-platform",
+  "projects": [
+    {
+      "id": "keep-discovery",
+      "path": "./src/Keep.Discovery",
+      "pack": "nuget"
+    },
+    {
+      "id": "keep-discovery-zoopicker",
+      "path": "./src/Keep.Discovery.ZooPicker",
+      "pack": "nuget"
+    },
+    {
+      "id": "keep-discovery-refit",
+      "path": "./src/Keep.Discovery.Refit",
+      "pack": "nuget"
+    }
+  ],
+  "solution": {
+    "path": "./Discovery.sln",
+    "release": true,
+    "toolType": "dotnet",
+    "projectIds": [
+      "keep-discovery",
+      "keep-discovery-zoopicker",
+      "keep-discovery-refit"
+    ]
+  },
+  "notice": {
+    "dingTalk": {
+      //钉钉机器人Token
+      "accessToken": "f427165f27444e27975ade327bc89e1a5193236ed9c7c9a845da55bd8080f0d2",
+      //需要被@组员的手机号
+      "ats": {
+        "Development": [
+          "18516532013"
+        ]
+      }
+    }
+  },
+  "qa": {
+    "unitTest": {
+      "testProjects": [
+        {
+          "id": "keep.discovery.test",
+          "path": "./tests/Keep.Discovery.Tests",
+          "toolType": "dotnet",
+          "testTool": "xunit",
+          "release": true
+        }
+      ]
+    },
+    "sonar": {
+      "toolType": "dotnet",
+      "rootPath": "./Discovery.sln",
+      "exclusions": [],
+      // "r#": {
+      //   "exclusions": [
+      //     "**/tests",
+      //     "**/*.json"
+      //   ]
+      // }
+    }
+  },
+  "targets": {},
+  "sources": {
+    // "test": [
+    //   {
+    //     "source": "http://proget.kede.net/nuget/test/",
+    //     "credentialId": "0a8aaec1-722c-4805-bd38-5f7626a9faa3",
+    //     "urls": [
+    //       "http://proget.kede.net/feeds/test/Keep.Discovery/versions"
+    //     ]
+    //   }
+    // ],
+    "alpha": [
+      {
+        "source": "http://proget.kede.net/nuget/alpha/",
+        "credentialId": "0a8aaec1-722c-4805-bd38-5f7626a9faa3",
+        "urls": [
+          "http://proget.kede.net/feeds/alpha/Keep.Discovery/versions",
+          "http://proget.kede.net/feeds/alpha/Keep.Discovery.ZooPicker/versions",
+          "http://proget.kede.net/feeds/alpha/Keep.Discovery.Refit/versions",
+        ]
+      }
+    ],
+    "default": [
+      {
+        "source": "http://proget.kede.net/nuget/public/",
+        "credentialId": "0a8aaec1-722c-4805-bd38-5f7626a9faa3",
+        "urls": [
+          "http://proget.kede.net/feeds/public/Keep.Discovery/versions",
+          "http://proget.kede.net/feeds/public/Keep.Discovery.ZooPicker/versions",
+          "http://proget.kede.net/feeds/public/Keep.Discovery.Refit/versions"
+        ]
+      }
+    ]
+  },
+  "switch": {
+    "restore": true,
+    "build": true,
+    "QA": "auto",
+    "publish": "auto",
+    "deploy": "auto"
+  }
+}

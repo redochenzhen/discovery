@@ -1,0 +1,30 @@
+next-version: 1.0
+branches: {}
+ignore:
+  sha: []
+merge-message-formats: {}
+
+branches:
+  feature:
+    regex: (feat(ure)?|bug|task|story|issue)[-/]
+    mode: ContinuousDeployment
+    tag: alpha
+    increment: Minor
+  master:
+    regex: master$
+    mode: ContinuousDeployment
+    tag: beta
+    increment: Minor
+  release:
+    regex: rel(ease)?[-/]
+    mode: ContinuousDelivery
+    tag: ''
+    increment: Patch
+    is-release-branch: true
+  hotfix:
+    regex: hotfix[-/]
+    mode: ContinuousDeployment
+    tag: alpha
+    increment: Patch
+  # support:
+  #   regex: support[-/]
