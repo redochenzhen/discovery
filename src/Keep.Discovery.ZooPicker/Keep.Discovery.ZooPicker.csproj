@@ -7,7 +7,7 @@
     <Company>Kede</Company>
     <Product>Keep.Discovery.ZooPicker</Product>
     <Authors>Zhen,Kede</Authors>
-    <Description>Keep.Discovery是基于asp.net core平台的服务发现框架。ZooPicker是对Keep.Discovery抽象的一个实现（基于ZooKeeper）。</Description>
+    <Description>An implementation of Keep.Discovery (based on zookeeper).</Description>
     <PackageProjectUrl>https://github.com/redochenzhen/discovery</PackageProjectUrl>
   </PropertyGroup>
 

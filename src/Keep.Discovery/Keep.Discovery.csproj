@@ -7,7 +7,7 @@
     <Authors>Zhen,Kede</Authors>
     <Company>Kede</Company>
     <PackageProjectUrl>https://github.com/redochenzhen/discovery</PackageProjectUrl>
-    <Description>Keep.Discovery是基于asp.net core平台的服务发现框架。</Description>
+    <Description>A service-discovery framework of asp.net core.</Description>
   </PropertyGroup>
 
   <ItemGroup>
