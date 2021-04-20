@@ -83,7 +83,7 @@
         "urls": [
           "http://proget.kede.net/feeds/alpha/Keep.Discovery/versions",
           "http://proget.kede.net/feeds/alpha/Keep.Discovery.ZooPicker/versions",
-          "http://proget.kede.net/feeds/alpha/Keep.Discovery.Refit/versions",
+          "http://proget.kede.net/feeds/alpha/Keep.Discovery.Refit/versions"
         ]
       }
     ],
@@ -96,6 +96,10 @@
           "http://proget.kede.net/feeds/public/Keep.Discovery.ZooPicker/versions",
           "http://proget.kede.net/feeds/public/Keep.Discovery.Refit/versions"
         ]
+      },
+      {
+        "source": "https://api.nuget.org/v3/index.json",
+        "credentialId": "776eabf0-185e-430c-8d89-3764da749eee"
       }
     ]
   },
