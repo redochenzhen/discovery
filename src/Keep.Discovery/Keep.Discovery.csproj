@@ -7,7 +7,8 @@
     <Authors>Zhen,Kede</Authors>
     <Company>Kede</Company>
     <PackageProjectUrl>https://github.com/redochenzhen/discovery</PackageProjectUrl>
-    <Description>A service-discovery framework of asp.net core.</Description>
+    <Description>A service-discovery framework (with internal implementation) for asp.net core.</Description>
+    <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,6 +23,13 @@
 
   <ItemGroup>
     <InternalsVisibleToSuffix Include=".Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\images\icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
   <Target Name="AddInternalsVisibleTo" BeforeTargets="BeforeCompile">

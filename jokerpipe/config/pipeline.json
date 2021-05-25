@@ -81,9 +81,9 @@
         "source": "http://proget.kede.net/nuget/alpha/",
         "credentialId": "0a8aaec1-722c-4805-bd38-5f7626a9faa3",
         "urls": [
-          "http://proget.kede.net/feeds/alpha/Keep.Discovery/versions",
-          "http://proget.kede.net/feeds/alpha/Keep.Discovery.ZooPicker/versions",
-          "http://proget.kede.net/feeds/alpha/Keep.Discovery.Refit/versions"
+          "http://proget.kede.net/feeds/alpha/(Keep.Discovery)/versions",
+          "http://proget.kede.net/feeds/alpha/(Keep.Discovery.ZooPicker)/versions",
+          "http://proget.kede.net/feeds/alpha/(Keep.Discovery.Refit)/versions"
         ]
       }
     ],
@@ -92,9 +92,9 @@
         "source": "http://proget.kede.net/nuget/public/",
         "credentialId": "0a8aaec1-722c-4805-bd38-5f7626a9faa3",
         "urls": [
-          "http://proget.kede.net/feeds/public/Keep.Discovery/versions",
-          "http://proget.kede.net/feeds/public/Keep.Discovery.ZooPicker/versions",
-          "http://proget.kede.net/feeds/public/Keep.Discovery.Refit/versions"
+          "http://proget.kede.net/feeds/public/(Keep.Discovery)/versions",
+          "http://proget.kede.net/feeds/public/(Keep.Discovery.ZooPicker)/versions",
+          "http://proget.kede.net/feeds/public/(Keep.Discovery.Refit)/versions"
         ]
       },
       {

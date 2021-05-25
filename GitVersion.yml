@@ -14,7 +14,7 @@ branches:
     regex: master$
     mode: ContinuousDeployment
     tag: beta
-    increment: Minor
+    increment: Patch
   release:
     regex: rel(ease)?[-/]
     mode: ContinuousDelivery

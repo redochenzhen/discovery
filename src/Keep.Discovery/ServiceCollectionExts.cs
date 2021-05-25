@@ -19,7 +19,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExts
     {
-        private static readonly Action<HttpClient> _noAction = (HttpClient _) => { };
+        private static readonly Action<HttpClient> _noAction = _ => { };
 
         /// <summary>
         /// 配置服务发现使用“静态发现”

@@ -208,7 +208,7 @@ namespace Keep.Discovery.Http
                 peer.Connections--;
                 if (state == PeerState.Successful)
                 {
-                    //上次失败后已经过了若干次check
+                    //上次失败后已经过了至少一个Check
                     if (peer.LastFailed < peer.Checked)
                     {
                         peer.Fails = 0;
@@ -216,7 +216,7 @@ namespace Keep.Discovery.Http
                     return;
                 }
                 peer.Fails++;
-                //失败刚刚发生，重置对该peer的冻结时间
+                //失败刚刚发生，重置对该peer的冻结判定时间（now - Checked <= FailTimeout）
                 peer.Checked = DateTime.Now;
                 peer.LastFailed = peer.Checked;
                 //随着失败次数逐渐接近MaxFails，权重平滑渐小
